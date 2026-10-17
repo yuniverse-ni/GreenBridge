@@ -1,0 +1,17 @@
+{
+  "profile": {
+    "id": "BIZ-USER",
+    "name": "",
+    "currency": "MYR",
+    "initialCashSen": 0,
+    "minReserveSen": 0,
+    "forecastHorizonDays": 30,
+    "isConfigured": false
+  },
+  "invoices": [],
+  "bills": [],
+  "bankTransactions": [],
+  "auditLogs": [],
+  "proposedActions": [],
+  "uploadedFiles": []
+}

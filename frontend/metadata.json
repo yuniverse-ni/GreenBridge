@@ -1,0 +1,6 @@
+{
+  "name": "TransitionAI — AI Green Finance Copilot for SMEs",
+  "description": "AI green finance and decarbonisation copilot for SMEs that transforms financial and operational data into verified carbon baselines, bankable transition plans, and green loan packages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
