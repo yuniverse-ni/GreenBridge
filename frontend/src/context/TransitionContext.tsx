@@ -434,7 +434,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         await refreshState();
         return {
           success: true,
-          message: `Financial statements & DSCR computed via Python FastAPI (Hash: ${result.auditHash ? result.auditHash.substring(0, 10) + '...' : 'Verified'})`,
+          message: 'Financial statements & DSCR successfully computed via Python FastAPI.',
           data: result.raw
         };
       }

@@ -9,7 +9,7 @@
     "gridRegion": "Peninsular Malaysia",
     "facilityFloorAreaSqM": 0,
     "employeeCount": 0,
-    "annualRevenue": 0,
+    "annualRevenue": 137,
     "annualOperatingExpenses": 0,
     "cashBalance": 0,
     "existingAnnualDebtService": 0,
@@ -21,71 +21,495 @@
   },
   "financialModel": null,
   "activityRecords": [],
-  "bankTransactions": [],
+  "bankTransactions": [
+    {
+      "id": "TX-1792343154958-0",
+      "date": "2022-08-31T22:00:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 4,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-1",
+      "date": "2022-08-31T22:00:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-2",
+      "date": "2022-08-31T22:05:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-3",
+      "date": "2022-08-31T22:10:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-4",
+      "date": "2022-08-31T22:10:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 8,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-5",
+      "date": "2022-08-31T22:15:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 5,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-6",
+      "date": "2022-08-31T22:15:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-7",
+      "date": "2022-08-31T22:15:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-8",
+      "date": "2022-08-31T22:20:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-9",
+      "date": "2022-08-31T22:20:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 4,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-10",
+      "date": "2022-08-31T22:20:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-11",
+      "date": "2022-08-31T22:25:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-12",
+      "date": "2022-08-31T22:25:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-13",
+      "date": "2022-08-31T22:25:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 5,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-14",
+      "date": "2022-08-31T22:30:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-15",
+      "date": "2022-08-31T22:30:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-16",
+      "date": "2022-08-31T22:35:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-17",
+      "date": "2022-08-31T22:35:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 8,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-18",
+      "date": "2022-08-31T22:40:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-19",
+      "date": "2022-08-31T22:40:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 4,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-20",
+      "date": "2022-08-31T22:40:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-21",
+      "date": "2022-08-31T22:45:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 5,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-22",
+      "date": "2022-08-31T22:45:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-23",
+      "date": "2022-08-31T22:45:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-24",
+      "date": "2022-08-31T22:50:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 4,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-25",
+      "date": "2022-08-31T22:50:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-26",
+      "date": "2022-08-31T23:00:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 8,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-27",
+      "date": "2022-08-31T23:00:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-28",
+      "date": "2022-08-31T23:05:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-29",
+      "date": "2022-08-31T23:05:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 4,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-30",
+      "date": "2022-08-31T23:10:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 5,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-31",
+      "date": "2022-08-31T23:10:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-32",
+      "date": "2022-08-31T23:10:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-33",
+      "date": "2022-08-31T23:15:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-34",
+      "date": "2022-08-31T23:20:12.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-35",
+      "date": "2022-08-31T23:20:33.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-36",
+      "date": "2022-08-31T23:20:34.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-37",
+      "date": "2022-08-31T23:25:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 4,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-38",
+      "date": "2022-08-31T23:25:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-39",
+      "date": "2022-08-31T23:25:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-40",
+      "date": "2022-08-31T23:30:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 5,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-41",
+      "date": "2022-08-31T23:35:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 4,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-42",
+      "date": "2022-08-31T23:35:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-43",
+      "date": "2022-08-31T23:40:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-44",
+      "date": "2022-08-31T23:40:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-45",
+      "date": "2022-08-31T23:45:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-46",
+      "date": "2022-08-31T23:45:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 8,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-47",
+      "date": "2022-08-31T23:50:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 1,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-48",
+      "date": "2022-08-31T23:50:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 5,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    },
+    {
+      "id": "TX-1792343154958-49",
+      "date": "2022-08-31T23:55:00.000Z",
+      "description": "financial report",
+      "category": "revenue",
+      "amount": 2,
+      "type": "inflow",
+      "sourceFileName": "company_A_labelled_subset.csv"
+    }
+  ],
   "selectedActionIds": [
     "ACT-SOLAR-01",
     "ACT-LED-02"
   ],
-  "lenderPackages": [
-    {
-      "id": "PKG-1792301187768",
-      "packageName": "SME Green Transition Financing Pack",
-      "companyName": "Apex Precision Engineering Sdn Bhd",
-      "createdDate": "2026-10-18",
-      "authorizedBy": "SME Managing Director / Owner",
-      "authorizedRole": "sme_owner",
-      "sharingToken": "lp_bjwm9t69mvddunco",
-      "isShared": true,
-      "sharedWithLenders": [
-        "Malayan Banking Berhad (Maybank Green Facilities)",
-        "CIMB Sustainability Advisory"
-      ],
-      "expiresAt": "2026-12-17",
-      "disclosures": {
-        "includeExecutiveSummary": true,
-        "includeCarbonBaseline": true,
-        "includeFinancialSummary": true,
-        "includeDecarbonisationPlan": true,
-        "includeCashFlowProjections": true,
-        "includeEvidenceDocuments": true
-      },
-      "lenderRiskAssessment": {
-        "overallRisk": "Moderate",
-        "creditReadinessScore": 40,
-        "dscrStressTestPassed": true,
-        "carbonVerificationStatus": "Self-Declared with Invoices",
-        "lenderKeyStrengths": [
-          "Strong Debt Service Coverage Ratio (DSCR 50.00x) well above 1.25x covenant.",
-          "High audit trail verification with 0% invoice-metered evidence.",
-          "Decarbonisation plan generates net cash-flow positive energy bill savings from Year 1."
-        ],
-        "lenderKeyRisks": [
-          "Technology execution risk during rooftop solar installation (mitigated by Tier-1 EPC contractor warranty).",
-          "Inflationary utility tariff volatility (solar self-consumption hedges against fuel cost pass-through surcharge)."
-        ]
-      },
-      "executiveSummaryText": "The Borrower is presenting this Green Financing Package to Maybank SME Green Facility for the purpose of \"Concessionary Green Financing Application under BNM Low Carbon Transition Facility (LCTF)\". Authorized CapEx commitment totals RM 152,800 with projected 42.3 tCO2e annual emissions abatement. Formally authorized by Managing Director (Authorised Representative / Director).",
-      "auditEvidenceFiles": []
-    }
-  ],
+  "lenderPackages": [],
   "auditLogs": [
     {
-      "id": "AUDIT-1792301187768",
-      "timestamp": "2026-10-18T05:26:27.768Z",
+      "id": "AUDIT-1792343154958",
+      "timestamp": "2026-10-18T17:05:54.958Z",
       "userRole": "sme_owner",
-      "action": "Lender Financing Package Created",
-      "details": "Created package \"SME Green Transition Financing Pack\" with token lp_bjwm9t69mvddunco. Approved disclosures for prospective credit institutions.",
-      "category": "LENDER_DISCLOSURE",
-      "evidenceRef": "lp_bjwm9t69mvddunco"
+      "action": "Financial Transactions Ingested",
+      "details": "Imported 50 transactions (0 duplicate(s) safely skipped).",
+      "category": "DATA_INGESTION",
+      "evidenceRef": "company_A_labelled_subset.csv"
     },
     {
-      "id": "AUDIT-1792300987374",
-      "timestamp": "2026-10-18T05:23:07.374Z",
+      "id": "AUDIT-1792343123508",
+      "timestamp": "2026-10-18T17:05:23.508Z",
       "userRole": "sme_owner",
       "action": "Workspace Reset",
       "details": "All activity records, files, and simulations cleared to pristine empty state.",
       "category": "DATA_INGESTION"
     }
   ],
-  "uploadedFiles": []
+  "uploadedFiles": [
+    {
+      "id": "FILE-1792343127618-5c1yl",
+      "fileName": "company_A_labelled_subset.csv",
+      "fileSize": 1024,
+      "fileType": "csv",
+      "detectedCategory": "financial_report",
+      "recordsImported": 50,
+      "recordsSkipped": 0,
+      "recordsFlagged": 0,
+      "uploadTimestamp": "2026-10-18T17:05:54.958Z",
+      "status": "imported",
+      "isOcrParsed": false
+    }
+  ]
 }
