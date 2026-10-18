@@ -1,0 +1,280 @@
+{
+  "company": {
+    "company_id": "SME-DEMO",
+    "company_name": null,
+    "reporting_year": 2024,
+    "employees": null,
+    "floor_area_m2": null
+  },
+  "normalized_data": {
+    "metadata": {
+      "company_id": "SME-DEMO",
+      "company_name": null,
+      "reporting_year": 2024,
+      "employees": null,
+      "floor_area_m2": null
+    },
+    "financial": {
+      "revenue": null,
+      "operating_expenses": null,
+      "cash_balance": null,
+      "annual_debt_service": null,
+      "capex_budget": null,
+      "minimum_cash_reserve": null
+    },
+    "activity": {
+      "electricity_kwh": 266000.0,
+      "diesel_litres": null,
+      "petrol_litres": null,
+      "natural_gas_m3": null,
+      "lpg_kg": null
+    },
+    "provenance": {
+      "company_id": [
+        {
+          "source_file": "TNB_2024.csv",
+          "source_document_id": "electricity-2024",
+          "source_type": "csv",
+          "reporting_period": "2024",
+          "extraction_method": "deterministic_csv",
+          "confidence": null,
+          "sheet": null,
+          "row": 2,
+          "column": "company_id",
+          "original_value": "SME-DEMO",
+          "original_metric": null,
+          "detected_unit": null,
+          "normalized_unit": null,
+          "mapping_method": "exact",
+          "mapping_confidence": 1.0,
+          "confirmation_status": "ACCEPTED",
+          "confirmed_by": null,
+          "confirmed_at": null,
+          "evidence_quality": "INVOICE_DERIVED",
+          "evidence_quality_basis": "SME-declared annual utility export; not independently verified",
+          "semantic_confidence": null
+        }
+      ],
+      "reporting_year": [
+        {
+          "source_file": "TNB_2024.csv",
+          "source_document_id": "electricity-2024",
+          "source_type": "csv",
+          "reporting_period": "2024",
+          "extraction_method": "deterministic_csv",
+          "confidence": null,
+          "sheet": null,
+          "row": 2,
+          "column": "reporting_year",
+          "original_value": "2024",
+          "original_metric": null,
+          "detected_unit": null,
+          "normalized_unit": null,
+          "mapping_method": "exact",
+          "mapping_confidence": 1.0,
+          "confirmation_status": "ACCEPTED",
+          "confirmed_by": null,
+          "confirmed_at": null,
+          "evidence_quality": "INVOICE_DERIVED",
+          "evidence_quality_basis": "SME-declared annual utility export; not independently verified",
+          "semantic_confidence": null
+        }
+      ],
+      "electricity_kwh": [
+        {
+          "source_file": "TNB_2024.csv",
+          "source_document_id": "electricity-2024",
+          "source_type": "csv",
+          "reporting_period": "2024",
+          "extraction_method": "deterministic_csv",
+          "confidence": null,
+          "sheet": null,
+          "row": 2,
+          "column": "Electricity (MWh)",
+          "original_value": "266",
+          "original_metric": null,
+          "detected_unit": "MWh",
+          "normalized_unit": "kWh",
+          "mapping_method": "alias",
+          "mapping_confidence": 1.0,
+          "confirmation_status": "ACCEPTED",
+          "confirmed_by": null,
+          "confirmed_at": null,
+          "evidence_quality": "INVOICE_DERIVED",
+          "evidence_quality_basis": "SME-declared annual utility export; not independently verified",
+          "semantic_confidence": null
+        }
+      ]
+    },
+    "mappings": [
+      {
+        "original_column": "company_id",
+        "mapped_field": "company_id",
+        "detected_unit": null,
+        "normalized_unit": null,
+        "mapping_confidence": 1.0,
+        "mapping_method": "exact",
+        "row": 2
+      },
+      {
+        "original_column": "reporting_year",
+        "mapped_field": "reporting_year",
+        "detected_unit": null,
+        "normalized_unit": null,
+        "mapping_confidence": 1.0,
+        "mapping_method": "exact",
+        "row": 2
+      },
+      {
+        "original_column": "Electricity (MWh)",
+        "mapped_field": "electricity_kwh",
+        "detected_unit": "MWh",
+        "normalized_unit": "kWh",
+        "mapping_confidence": 1.0,
+        "mapping_method": "alias",
+        "row": 2
+      }
+    ],
+    "unmapped_fields": [],
+    "warnings": []
+  },
+  "evidence": [
+    {
+      "field": "company_id",
+      "source_file": "TNB_2024.csv",
+      "source_document_id": "electricity-2024",
+      "original_column": "company_id",
+      "original_metric": null,
+      "row": 2,
+      "sheet": null,
+      "reporting_period": "2024",
+      "original_value": "SME-DEMO",
+      "original_unit": null,
+      "normalized_value": "SME-DEMO",
+      "normalized_unit": null,
+      "extraction_method": "deterministic_csv",
+      "mapping_method": "exact",
+      "mapping_confidence": 1.0,
+      "semantic_confidence": null,
+      "evidence_quality": "INVOICE_DERIVED",
+      "evidence_quality_basis": "SME-declared annual utility export; not independently verified",
+      "confirmation_status": "ACCEPTED",
+      "confirmed_by": null,
+      "confirmed_at": null,
+      "externally_verified": false
+    },
+    {
+      "field": "reporting_year",
+      "source_file": "TNB_2024.csv",
+      "source_document_id": "electricity-2024",
+      "original_column": "reporting_year",
+      "original_metric": null,
+      "row": 2,
+      "sheet": null,
+      "reporting_period": "2024",
+      "original_value": "2024",
+      "original_unit": null,
+      "normalized_value": 2024,
+      "normalized_unit": null,
+      "extraction_method": "deterministic_csv",
+      "mapping_method": "exact",
+      "mapping_confidence": 1.0,
+      "semantic_confidence": null,
+      "evidence_quality": "INVOICE_DERIVED",
+      "evidence_quality_basis": "SME-declared annual utility export; not independently verified",
+      "confirmation_status": "ACCEPTED",
+      "confirmed_by": null,
+      "confirmed_at": null,
+      "externally_verified": false
+    },
+    {
+      "field": "electricity_kwh",
+      "source_file": "TNB_2024.csv",
+      "source_document_id": "electricity-2024",
+      "original_column": "Electricity (MWh)",
+      "original_metric": null,
+      "row": 2,
+      "sheet": null,
+      "reporting_period": "2024",
+      "original_value": "266",
+      "original_unit": "MWh",
+      "normalized_value": 266000.0,
+      "normalized_unit": "kWh",
+      "extraction_method": "deterministic_csv",
+      "mapping_method": "alias",
+      "mapping_confidence": 1.0,
+      "semantic_confidence": null,
+      "evidence_quality": "INVOICE_DERIVED",
+      "evidence_quality_basis": "SME-declared annual utility export; not independently verified",
+      "confirmation_status": "ACCEPTED",
+      "confirmed_by": null,
+      "confirmed_at": null,
+      "externally_verified": false
+    }
+  ],
+  "data_gaps": [
+    {
+      "gap_type": "ACTIVITY_APPLICABILITY",
+      "affected_field": null,
+      "severity": "WARNING",
+      "message": "Missing activity categories are not assumed zero: diesel_litres, petrol_litres, natural_gas_m3, lpg_kg.",
+      "recommended_action": "Supply applicable activity evidence or explicitly continue with a partial baseline.",
+      "missing_periods": []
+    }
+  ],
+  "readiness": {
+    "carbon_analysis": {
+      "status": "PARTIAL",
+      "reasons": [
+        "Some activity categories are missing; coverage/applicability must be reviewed."
+      ],
+      "partial_accepted": true,
+      "may_proceed": true
+    },
+    "financial_analysis": {
+      "status": "BLOCKED",
+      "reasons": [
+        "Missing financial fields: revenue, operating_expenses, cash_balance, annual_debt_service, capex_budget, minimum_cash_reserve."
+      ],
+      "partial_accepted": false,
+      "may_proceed": false
+    },
+    "transition_analysis": {
+      "status": "BLOCKED",
+      "reasons": [
+        "Depends on carbon and financial data readiness; no transition calculations have been performed."
+      ],
+      "partial_accepted": false,
+      "may_proceed": false
+    }
+  },
+  "agent_next_action": "PROCEED",
+  "requested_modules": [
+    "carbon_analysis"
+  ],
+  "partial_acceptances": [
+    {
+      "actor": "SME Owner",
+      "reason": "Review electricity-only baseline while applicable fuel evidence is collected",
+      "decided_at": "2026-10-18T06:30:22.553550Z",
+      "modules": [
+        "carbon_analysis"
+      ],
+      "acknowledged_gaps": [
+        {
+          "gap_type": "ACTIVITY_APPLICABILITY",
+          "affected_field": null,
+          "severity": "WARNING",
+          "message": "Missing activity categories are not assumed zero: diesel_litres, petrol_litres, natural_gas_m3, lpg_kg.",
+          "recommended_action": "Supply applicable activity evidence or explicitly continue with a partial baseline.",
+          "missing_periods": []
+        }
+      ]
+    }
+  ],
+  "mapping_requests": [],
+  "suggestions": [],
+  "errors": [],
+  "notices": [],
+  "intake_status": "COMPLETE_PARTIAL"
+}
