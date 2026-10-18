@@ -46,6 +46,12 @@ export interface ActivityRecord {
   vendorName?: string;
   notes?: string;
   createdAt: string;
+  status?: 'uploaded' | 'processing' | 'review_required' | 'validation_failed' | 'approved' | 'rejected' | 'failed';
+  validationIssues?: string[];
+  originalValue?: number | null;
+  normalizedValue?: number | null;
+  sourceDocumentId?: string;
+  extractionConfidence?: number | null;
 }
 
 export interface BankTransactionRecord {
@@ -300,10 +306,12 @@ export interface UploadedFileInfo {
   recordsSkipped: number;
   recordsFlagged: number;
   uploadTimestamp: string;
-  status: 'preview' | 'imported' | 'failed';
+  status: 'uploaded' | 'processing' | 'review_required' | 'validation_failed' | 'approved' | 'rejected' | 'failed' | 'preview' | 'imported';
   isOcrParsed?: boolean;
   ocrDocument?: OcrExtractedDocument;
   errors?: string[];
+  sourceCategory?: string;
+  reportingPeriod?: string;
 }
 
 export interface StoredFinancialModel {

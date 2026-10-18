@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useMemo, useEffect, useCallback } from 'react';
+import { api } from '../services/api';
 import {
   AuditLogEntry,
   Bill,
@@ -129,29 +130,26 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const refreshData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/financial-data');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.profile) {
-          setBusinessProfile(data.profile);
-          if (data.profile.forecastHorizonDays) {
-            setForecastHorizonDays(data.profile.forecastHorizonDays);
-          }
+      const data = await api.get<any>('/api/financial-data');
+      if (data.profile) {
+        setBusinessProfile(data.profile);
+        if (data.profile.forecastHorizonDays) {
+          setForecastHorizonDays(data.profile.forecastHorizonDays);
         }
-        if (Array.isArray(data.invoices)) setInvoices(data.invoices);
-        if (Array.isArray(data.bills)) setBills(data.bills);
-        if (Array.isArray(data.bankTransactions)) setBankTransactions(data.bankTransactions);
-        if (Array.isArray(data.uploadedFiles)) setUploadedFiles(data.uploadedFiles);
-        if (Array.isArray(data.auditLogs) && data.auditLogs.length > 0) {
-          setAuditLogs(data.auditLogs);
-        }
+      }
+      if (Array.isArray(data.invoices)) setInvoices(data.invoices);
+      if (Array.isArray(data.bills)) setBills(data.bills);
+      if (Array.isArray(data.bankTransactions)) setBankTransactions(data.bankTransactions);
+      if (Array.isArray(data.uploadedFiles)) setUploadedFiles(data.uploadedFiles);
+      if (Array.isArray(data.auditLogs) && data.auditLogs.length > 0) {
+        setAuditLogs(data.auditLogs);
+      }
 
-        const hasAnyData = (data.invoices?.length > 0) || (data.bills?.length > 0) || data.profile?.isConfigured;
-        if (hasAnyData) {
-          setActiveTab('dashboard');
-        } else {
-          setActiveTab('data-setup');
-        }
+      const hasAnyData = (data.invoices?.length > 0) || (data.bills?.length > 0) || data.profile?.isConfigured;
+      if (hasAnyData) {
+        setActiveTab('dashboard');
+      } else {
+        setActiveTab('data-setup');
       }
     } catch (err) {
       console.warn('[FinanceContext] Error fetching server data:', err);
@@ -162,8 +160,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     refreshData();
-    fetch('/api/health')
-      .then((res) => res.json())
+    api.get<{ geminiActive?: boolean }>('/api/health')
       .then((data) => {
         if (data.geminiActive) setGeminiActive(true);
       })
@@ -408,19 +405,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const recordPayment = async (invoiceId: string, amountSen?: number): Promise<{ success: boolean; message: string }> => {
     setIsRecordingPayment(true);
     try {
-      const res = await fetch('/api/financial-data/record-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invoiceId, amountSen })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, message: data.error || 'Failed to record payment.' };
-      }
+      const data = await api.post<{ error?: string; invoice?: { amountSen: number; id: string } }>('/api/financial-data/record-payment', { invoiceId, amountSen });
       await refreshData();
       return {
         success: true,
-        message: `Payment of ${formatMYR(data.invoice.amountSen)} reconciled for ${data.invoice.id}. Available cash balance updated.`
+        message: `Payment of ${formatMYR(data.invoice?.amountSen ?? 0)} reconciled for ${data.invoice?.id ?? invoiceId}. Available cash balance updated.`
       };
     } catch (err: any) {
       return { success: false, message: err.message || 'Payment recording failed.' };
@@ -432,7 +421,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Clear all data and reset to clean empty state
   const clearAllData = async () => {
     try {
-      await fetch('/api/financial-data', { method: 'DELETE' });
+      await api.del('/api/financial-data');
       setBusinessProfile(EMPTY_BUSINESS_PROFILE);
       setInvoices([]);
       setBills([]);
@@ -449,17 +438,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Update profile settings
   const updateSettings = async (updates: Partial<BusinessProfile>) => {
     try {
-      const res = await fetch('/api/financial-data/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setBusinessProfile(data.profile);
-        if (updates.forecastHorizonDays) {
-          setForecastHorizonDays(updates.forecastHorizonDays);
-        }
+      const data = await api.post<{ profile: BusinessProfile }>('/api/financial-data/settings', updates);
+      setBusinessProfile(data.profile);
+      if (updates.forecastHorizonDays) {
+        setForecastHorizonDays(updates.forecastHorizonDays);
       }
     } catch (err) {
       console.error('Failed to update settings:', err);
