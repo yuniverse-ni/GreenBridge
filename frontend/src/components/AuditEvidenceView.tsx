@@ -1,4 +1,5 @@
 // TransitionAI — Audit Trail & Evidence Registry
+import { readDisclosureAudit } from '../agentData/lenderDrafts';
 import React, { useState } from 'react';
 import { useTransition } from '../context/TransitionContext';
 import {
@@ -16,8 +17,9 @@ export const AuditEvidenceView: React.FC = () => {
   const { auditLogs, uploadedFiles, profile, activityRecords } = useTransition();
 
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [recordScope, setRecordScope] = useState('all');
 
-  const filteredLogs = auditLogs.filter((log) => {
+  const filteredLogs = [...readDisclosureAudit(profile.id), ...auditLogs].filter((log) => {
     if (filterCategory === 'all') return true;
     return log.category === filterCategory;
   });
@@ -139,6 +141,18 @@ export const AuditEvidenceView: React.FC = () => {
           ))}
         </div>
       </div>
+      <details className="gb-panel">
+        <summary>Activity source records</summary>
+        <label className="gb-grid-region">Scope
+          <select value={recordScope} onChange={event => setRecordScope(event.target.value)}>
+            <option value="all">All scopes</option><option value="Scope 1">Scope 1</option><option value="Scope 2">Scope 2</option>
+          </select>
+        </label>
+        <div className="gb-table-scroll"><table><thead><tr><th>Date</th><th>Scope / Category</th><th>Quantity</th><th>Emission factor & source</th><th>Calculation</th><th>Emissions</th><th>Source document</th></tr></thead><tbody>
+          {activityRecords.filter(record => recordScope === 'all' || record.scope === recordScope).map(record => <tr key={record.id}><td>{record.date}</td><td>{record.scope} / {record.category}</td><td>{record.quantity.toLocaleString()} {record.unit}</td><td>{record.emissionFactor} kgCO2e / {record.unit}<small>{record.factorSource}</small></td><td>{record.quantity} x {record.emissionFactor} / 1,000</td><td>{record.emissionsTCO2e} tCO2e</td><td>{record.sourceFileName || record.invoiceNumber || 'Manual entry'}</td></tr>)}
+          {!activityRecords.some(record => recordScope === 'all' || record.scope === recordScope) && <tr><td colSpan={7}>No activity records for this scope.</td></tr>}
+        </tbody></table></div>
+      </details>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 // TransitionAI — Deterministic Financial Analysis & Comprehensive Statement Engine
 // Full 7-Sheet Financial Model, Ratio Diagnostics, 12-Month Forward Cash Budget, and Malaysian SME Tax Engine
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTransition } from '../context/TransitionContext';
 import {
   calculate_cash_flow,
@@ -36,16 +36,25 @@ import {
   TrendingDown,
   Info,
   Clock,
-  Briefcase
+  Briefcase,
+  X
 } from 'lucide-react';
 
 export const FinancialAnalysisView: React.FC = () => {
-  const { financial, profile, selectedActions, updateProfile } = useTransition();
+  const { financial, profile, selectedActions, updateProfile, setActiveTab } = useTransition();
 
   // Active sub-tab
   const [activeSubTab, setActiveSubTab] = useState<
     'overview' | 'statements' | 'ratios' | 'budget' | 'tax'
   >('overview');
+
+  const [showFinancialDetails, setShowFinancialDetails] = useState(false);
+  const financialDetailsRef = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const dialog = financialDetailsRef.current;
+    if (showFinancialDetails && dialog && !dialog.open) dialog.showModal();
+    else if (!showFinancialDetails && dialog?.open) dialog.close();
+  }, [showFinancialDetails]);
 
   // Interactive Debt Simulation Parameters
   const [interactiveInterestRate, setInteractiveInterestRate] = useState<number>(3.75); // Concessionary rate %
@@ -129,149 +138,43 @@ export const FinancialAnalysisView: React.FC = () => {
   const { incomeStatement: is, balanceSheet: bs, cashFlowStatement: cfs, ratios } = standardModel;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Deterministic Financial Engine & Statements
-            </h1>
-            <span className="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-blue-100 text-blue-800">
-              Deterministic Arithmetic
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-            Calculates 3-way financial statements, liquidity & leverage ratios, 12-month forward cash budget, and statutory Malaysian SME tax adjustments. Discloses all formulas and accounting conventions.
-          </p>
-        </div>
-
-        {/* Sub-navigation tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
-          <button
-            onClick={() => setActiveSubTab('overview')}
-            className={`px-3 py-1.5 rounded-lg transition ${
-              activeSubTab === 'overview'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Debt Capacity & DSCR
-          </button>
-          <button
-            onClick={() => setActiveSubTab('statements')}
-            className={`px-3 py-1.5 rounded-lg transition ${
-              activeSubTab === 'statements'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            P&L, Balance Sheet & Cash Flow
-          </button>
-          <button
-            onClick={() => setActiveSubTab('ratios')}
-            className={`px-3 py-1.5 rounded-lg transition ${
-              activeSubTab === 'ratios'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Financial Ratios
-          </button>
-          <button
-            onClick={() => setActiveSubTab('budget')}
-            className={`px-3 py-1.5 rounded-lg transition ${
-              activeSubTab === 'budget'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            12-Month Cash Budget
-          </button>
-          <button
-            onClick={() => setActiveSubTab('tax')}
-            className={`px-3 py-1.5 rounded-lg transition ${
-              activeSubTab === 'tax'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Tax Engine (LHDN)
-          </button>
-        </div>
+    <section className="gb-financial-analysis" aria-labelledby="financial-analysis-heading">
+      <div className="gb-page-heading"><div><h1 id="financial-analysis-heading">Financial Analysis</h1><p>Assess the SME's financial position and capacity to fund transition investments.</p></div></div>
+      <div className="gb-financial-kpis">
+        <article><h2>Annual Revenue</h2><strong>{formatCurrency(financial.annualRevenue, profile.currency)}</strong></article>
+        <article><h2>Operating EBITDA</h2><strong>{formatCurrency(financial.ebitda, profile.currency)}</strong></article>
+        <article><h2>Available Cash</h2><strong>{formatCurrency(financial.cashBalance, profile.currency)}</strong></article>
+        <article><h2>Current DSCR</h2><strong>{financial.currentDscr >= 50 ? '> 10.0x' : `${financial.currentDscr.toFixed(2)}x`}</strong></article>
       </div>
-
+      <div className="gb-financial-columns">
+        <article className="gb-panel"><h2>Financial Position</h2><dl className="gb-financial-facts">
+          <div><dt>Operating Expenses</dt><dd>{formatCurrency(financial.annualOpEx, profile.currency)}</dd></div>
+          <div><dt>Existing Annual Debt Service</dt><dd>{formatCurrency(financial.existingDebtService, profile.currency)}</dd></div>
+          <div><dt>Available CAPEX Budget</dt><dd>{formatCurrency(profile.maxCapExBudget, profile.currency)}</dd></div>
+          <div><dt>Minimum Cash Reserve<small>Existing cash-budget assumption</small></dt><dd>{formatCurrency(cashBufferInput, profile.currency)}</dd></div>
+          <div><dt>Current DSCR</dt><dd>{financial.currentDscr >= 50 ? '> 10.0x' : `${financial.currentDscr.toFixed(2)}x`}</dd></div>
+        </dl></article>
+        <article className="gb-panel gb-affordability-panel"><h2>Transition Affordability</h2><dl className="gb-financial-facts">
+          <div><dt>Available CAPEX Capacity<small>Declared project budget</small></dt><dd>{formatCurrency(profile.maxCapExBudget, profile.currency)}</dd></div>
+          <div><dt>Estimated Financing Capacity</dt><dd>{formatCurrency(financial.maxBorrowingCapacityAtTargetDscr, profile.currency)}</dd></div>
+          <div><dt>Remaining Cash After Investment</dt><dd className="gb-unavailable-value">Not supplied</dd></div>
+          <div><dt>Affordability Status</dt><dd className="gb-affordability-status">{!financial.isSufficientData ? 'More data needed' : financial.currentDscr >= profile.minDscrRequirement ? 'Meets current DSCR threshold' : 'Review debt coverage'}</dd></div>
+        </dl><p className="gb-affordability-note">Affordability estimate only; financing remains subject to lender review.</p></article>
+      </div>
+      <div className="gb-financial-next"><button className="gb-button" aria-haspopup="dialog" onClick={() => { setActiveSubTab('statements'); setShowFinancialDetails(true); }}>View financial details</button><button className="gb-button gb-primary" onClick={() => setActiveTab('actions')}>Explore Transition Actions <ArrowRight size={15} /></button></div>
+      <dialog ref={financialDetailsRef} className="gb-action-dialog gb-financial-details" aria-labelledby="financial-details-heading" onCancel={() => setShowFinancialDetails(false)} onClose={() => setShowFinancialDetails(false)}>
+        <div className="gb-action-dialog-heading"><h2 id="financial-details-heading">Financial details</h2><button className="gb-button" aria-label="Close financial details" onClick={() => setShowFinancialDetails(false)}><X size={16} /></button></div>
+        <div className="gb-financial-detail-picker"><label>Detail view<select value={activeSubTab} onChange={event => setActiveSubTab(event.target.value as typeof activeSubTab)}><option value="statements">Financial statements</option><option value="ratios">Financial ratios</option><option value="budget">Cash budget</option><option value="tax">Tax estimates</option><option value="overview">Financing simulation & cash flows</option></select></label><p>Statements, budget and tax retain the existing illustrative model and inputs; verify them against company records.</p></div>
+        <div className="gb-action-dialog-body gb-financial-detail-body">
       {/* SUB-TAB 1: Debt Capacity & DSCR Overview */}
       {activeSubTab === 'overview' && (
         <div className="space-y-6">
-          {/* Financial Health Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-              <span className="text-xs font-medium text-slate-500">Annual Gross Revenue</span>
-              <div className="mt-2">
-                <span className="text-2xl font-extrabold text-slate-900">
-                  {formatCurrency(financial.annualRevenue, profile.currency)}
-                </span>
-              </div>
-              <div className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2 flex justify-between">
-                <span>Operating Inflows</span>
-                <span className="font-semibold text-slate-700">Bank Verified</span>
-              </div>
-            </div>
-
-            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-              <span className="text-xs font-medium text-slate-500">Operating EBITDA</span>
-              <div className="mt-2">
-                <span className="text-2xl font-extrabold text-slate-900">
-                  {formatCurrency(financial.ebitda, profile.currency)}
-                </span>
-              </div>
-              <div className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2 flex justify-between">
-                <span>OpEx: {formatCurrency(financial.annualOpEx, profile.currency)}</span>
-                <span className="text-emerald-600 font-semibold">Positive</span>
-              </div>
-            </div>
-
-            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-              <span className="text-xs font-medium text-slate-500">Annual Energy Outlay</span>
-              <div className="mt-2">
-                <span className="text-2xl font-extrabold text-amber-900">
-                  {formatCurrency(financial.totalUtilityCost, profile.currency)}
-                </span>
-              </div>
-              <div className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2 flex justify-between">
-                <span>{financial.energyCostPctOfOpEx}% of Operating Cost</span>
-                <span className="text-amber-700 font-medium">Decarbonisation Target</span>
-              </div>
-            </div>
-
-            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-              <span className="text-xs font-medium text-slate-500">Current DSCR</span>
-              <div className="mt-2 flex items-center space-x-2">
-                <span className="text-2xl font-extrabold text-slate-900">
-                  {financial.currentDscr >= 50 ? '> 10.0x' : `${financial.currentDscr.toFixed(2)}x`}
-                </span>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                  financial.currentDscr >= profile.minDscrRequirement
-                    ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {financial.currentDscr >= profile.minDscrRequirement ? 'Covenant Healthy' : 'Stressed'}
-                </span>
-              </div>
-              <div className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2 flex justify-between">
-                <span>Min Requirement: {profile.minDscrRequirement}x</span>
-                <span className="font-semibold text-slate-700">Debt Svc: {formatCurrency(financial.existingDebtService, profile.currency)}</span>
-              </div>
-            </div>
-          </div>
-
           {/* Interactive Debt Capacity Simulator */}
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
               <div>
                 <h3 className="text-base font-bold text-slate-900">
-                  Interactive Green Loan Capacity Simulator
+                  Transition Financing Capacity Simulator
                 </h3>
                 <p className="text-xs text-slate-500">
                   Simulate maximum borrowing headroom under commercial vs concessionary green financing covenants.
@@ -358,7 +261,7 @@ export const FinancialAnalysisView: React.FC = () => {
               <p>• Max Annual Debt Service = (Operating EBITDA ÷ Target DSCR) - Existing Debt Service.</p>
               <p>• Max Loan Supportable = Present Value (PV) of annuity cash flows over {interactiveTenureYears} years at {interactiveInterestRate}%.</p>
               <p className="text-slate-500 italic">
-                Notice: This capacity is a mathematical feasibility calculation, not an approved credit decision from a bank or financial institution.
+                Notice: This capacity is a mathematical feasibility calculation, not a credit decision from a bank or financial institution.
               </p>
             </div>
           </div>
@@ -1036,6 +939,8 @@ export const FinancialAnalysisView: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+        </div>
+      </dialog>
+    </section>
   );
 };
