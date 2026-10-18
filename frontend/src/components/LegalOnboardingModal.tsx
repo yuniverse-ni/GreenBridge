@@ -16,9 +16,10 @@ import {
 interface LegalOnboardingModalProps {
   isOpen: boolean;
   onAccept: () => void;
+  onClose?: () => void;
 }
 
-export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({ isOpen, onAccept }) => {
+export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({ isOpen, onAccept, onClose }) => {
   const [agreedTerms, setAgreedTerms] = useState<boolean>(false);
   const [acknowledgedPrivacy, setAcknowledgedPrivacy] = useState<boolean>(false);
   const [activeDoc, setActiveDoc] = useState<'none' | 'terms' | 'privacy'>('none');
@@ -29,14 +30,15 @@ export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({ isOp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 animate-in fade-in duration-200 relative">
+      <div role="dialog" aria-modal="true" aria-label="Lender Pack consent" className="gb-approval-modal bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 animate-in fade-in duration-200 relative">
+        {onClose && <button type="button" className="absolute right-4 top-4 text-slate-500" aria-label="Cancel consent review" onClick={onClose}><X size={18} /></button>}
         <div className="text-center mb-6">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3 border border-emerald-100">
             <ShieldCheck className="w-6 h-6" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Welcome to TransitionAI</h2>
+          <h2 className="text-xl font-bold text-slate-900">Before sharing your Lender Pack</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Analyse your business data and explore your green transition opportunities.
+            Review the terms and privacy notice before continuing to SME disclosure approval.
           </p>
         </div>
 
@@ -161,7 +163,7 @@ export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({ isOp
                 <>
                   <section>
                     <h4 className="font-bold text-sm text-slate-900 mb-1">1. Introduction and Acceptance</h4>
-                    <p>Welcome to TransitionAI, an AI-assisted green-finance support tool designed to help small and medium-sized enterprises (“SMEs”) understand their financial and operational information, explore potential carbon-reduction opportunities, compare transition scenarios, and prepare transition-finance reports. Before using the Platform, please read these Terms. Where affirmative acceptance is required, you must accept the Terms before using the relevant feature. If you do not agree, do not use the Platform.</p>
+                    <p>Before sharing your Lender Pack, an AI-assisted green-finance support tool designed to help small and medium-sized enterprises (“SMEs”) understand their financial and operational information, explore potential carbon-reduction opportunities, compare transition scenarios, and prepare transition-finance reports. Before using the Platform, please read these Terms. Where affirmative acceptance is required, you must accept the Terms before using the relevant feature. If you do not agree, do not use the Platform.</p>
                   </section>
 
                   <section>

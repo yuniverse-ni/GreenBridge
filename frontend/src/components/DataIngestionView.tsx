@@ -33,6 +33,14 @@ import {
   RefreshCw
 } from 'lucide-react';
 
+const documentLabels: Record<string, string> = {
+  electricity: 'Electricity Bill', fuel_diesel: 'Diesel Record', fuel_petrol: 'Petrol Record',
+  fuel_gas: 'Gas Statement', fuel_lpg: 'LPG Record', water: 'Water Bill', refrigerant: 'Refrigerant Record',
+  bank_transactions: 'Bank Statement', financial_statements: 'Financial Statement', financial_report: 'Financial Report',
+  financial_revenue_opex: 'Revenue & Expenses', accounts_payable_receivable: 'Payables & Receivables',
+  production_volume: 'Production Record', equipment_record: 'Equipment Record', operating_hours: 'Operating Hours', mixed: 'Business Records',
+};
+
 interface InspectedFile {
   fileId: string;
   fileName: string;
@@ -59,7 +67,8 @@ export const DataIngestionView: React.FC = () => {
     activityRecords,
     loadSampleData,
     setActiveTab,
-    refreshState
+    refreshState,
+    isLoading
   } = useTransition();
 
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -126,7 +135,7 @@ export const DataIngestionView: React.FC = () => {
     setIsProcessing(true);
     setErrorMessage(null);
     setImportStatus(null);
-    setOcrProgressMsg('Running AI OCR document inspection & text extraction...');
+    setOcrProgressMsg('Reading your documents...');
 
     try {
       const fileArray = Array.from(files);
@@ -269,7 +278,7 @@ export const DataIngestionView: React.FC = () => {
     setIsProcessing(true);
     setErrorMessage(null);
     setImportStatus(null);
-    setOcrProgressMsg(`Extracting ${type === 'tnb_electricity' ? 'TNB Electricity Bill' : type === 'petronas_diesel' ? 'Petronas Fleet Fuel Receipt' : 'Gas Malaysia Statement'} with AI OCR...`);
+    setOcrProgressMsg(`Extracting ${type === 'tnb_electricity' ? 'TNB Electricity Bill' : type === 'petronas_diesel' ? 'Petronas Fleet Fuel Receipt' : 'Gas Malaysia Statement'} with AI-assisted extraction...`);
 
     try {
       let dummyFile: File;
@@ -297,7 +306,7 @@ export const DataIngestionView: React.FC = () => {
         }, 150);
       }
     } catch (err: any) {
-      setErrorMessage(`Sample OCR extraction failed: ${err.message || 'Unknown error'}`);
+      setErrorMessage(`Sample document could not be read: ${err.message || 'Unknown error'}`);
     } finally {
       setIsProcessing(false);
       setOcrProgressMsg('');
@@ -318,102 +327,12 @@ export const DataIngestionView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Return Navigation Breadcrumb & Context Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200">
-        <button
-          onClick={handleReturnToOrigin}
-          className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-600 hover:text-emerald-700 transition w-fit px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-emerald-300 shadow-2xs"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>
-            {returnSourceSection === 'activity_evidence'
-              ? 'Return to Activity Data & Audit Verification'
-              : returnSourceSection === 'hero'
-              ? 'Return to SME Dashboard (Hero Top)'
-              : 'Return to SME Overview'}
-          </span>
-        </button>
-
-        {/* Dynamic Context Pill & Mode Switcher */}
-        <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl text-xs font-medium">
-          <button
-            onClick={() => setUploadContext('full_business_data')}
-            className={`px-3 py-1 rounded-lg transition ${
-              uploadContext === 'full_business_data'
-                ? 'bg-white text-emerald-800 font-bold shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            All Business Data
-          </button>
-          <button
-            onClick={() => setUploadContext('energy_emissions')}
-            className={`px-3 py-1 rounded-lg transition ${
-              uploadContext === 'energy_emissions'
-                ? 'bg-white text-emerald-800 font-bold shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Energy & Emissions Evidence
-          </button>
-        </div>
-      </div>
-
-      {/* Context-Aware Header */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2 mb-1">
-            <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${
-              uploadContext === 'energy_emissions'
-                ? 'bg-amber-100 text-amber-800'
-                : 'bg-emerald-100 text-emerald-800'
-            }`}>
-              {uploadContext === 'energy_emissions'
-                ? 'Energy Evidence Context'
-                : 'Full Business Data Context'}
-            </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-              <Cpu className="w-3 h-3 text-blue-600" />
-              <span>AI Vision & Multimodal OCR Active</span>
-            </span>
-          </div>
-
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-            {uploadContext === 'energy_emissions'
-              ? 'Upload Energy & Emissions Evidence'
-              : 'Upload Your Business Data'}
-          </h1>
-
-          <p className="text-xs sm:text-sm text-slate-600 mt-1.5 max-w-2xl leading-relaxed">
-            {uploadContext === 'energy_emissions' ? (
-              <>
-                Add electricity bills (TNB), fuel receipts, natural gas statements, or photo scans. TransitionAI's OCR engine extracts consumption metrics, costs, and dates to verify your Scope 1 and Scope 2 carbon footprint.
-              </>
-            ) : (
-              <>
-                Upload your financial statements, bank records, and utility bills together. TransitionAI automatically parses and cross-links your energy and financial records to build your carbon baseline and green loan package.
-              </>
-            )}
-          </p>
-
-          {/* Secondary reassurance note */}
-          {uploadContext === 'energy_emissions' && (
-            <div className="mt-2 text-xs text-slate-500 flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span>You can also upload financial or operational records from this page anytime using the category selector below.</span>
-            </div>
-          )}
-        </div>
-
-        {/* Quick Testing & Template Tools */}
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <div className="relative group">
-            <button className="px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition shadow-2xs">
-              <Download className="w-3.5 h-3.5 text-slate-500" />
-              <span>Templates</span>
-            </button>
-            <div className="hidden group-hover:block absolute right-0 top-full mt-1 w-64 bg-white border border-slate-200 rounded-xl shadow-lg p-1.5 z-20">
+    <div className="gb-documents-page">
+      <div className="gb-page-heading gb-documents-heading">
+        <div><h1>Data &amp; Documents</h1><p>Upload financial, energy and operational records to build your carbon baseline and financial analysis.</p></div>
+        <div className="gb-header-actions">
+          <details className="gb-document-templates"><summary className="gb-button"><Download size={14} /> Templates</summary>
+            <div className="gb-document-template-menu">
               <button
                 onClick={() => downloadTemplate('electricity')}
                 className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 rounded-lg flex items-center justify-between"
@@ -443,15 +362,8 @@ export const DataIngestionView: React.FC = () => {
                 <span className="text-[10px] text-blue-700 font-mono font-bold">Cash Flow</span>
               </button>
             </div>
-          </div>
-
-          <button
-            onClick={loadSampleData}
-            className="px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold flex items-center gap-1.5 transition shadow-2xs"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Load Apex Industrial Dataset</span>
-          </button>
+          </details>
+          <button className="gb-button" onClick={loadSampleData} disabled={isProcessing || isLoading}>Load Sample Data</button>
         </div>
       </div>
 
@@ -472,94 +384,10 @@ export const DataIngestionView: React.FC = () => {
         </div>
       )}
 
-      {/* Categorized File Information Guide */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Group 1: Financial Records */}
-        <div className={`p-4 rounded-xl border transition ${
-          uploadContext === 'full_business_data'
-            ? 'bg-blue-50/50 border-blue-200'
-            : 'bg-white border-slate-200 opacity-80 hover:opacity-100'
-        }`}>
-          <div className="flex items-center space-x-2 text-blue-900 font-bold text-xs mb-2">
-            <Coins className="w-4 h-4 text-blue-600" />
-            <span>Financial Records</span>
-          </div>
-          <ul className="text-xs text-slate-600 space-y-1">
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-              <span>Bank statements & transactions</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-              <span>Revenue and operating expenses</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-              <span>Accounts payable and receivable</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-              <span>Financial reports & audited accounts</span>
-            </li>
-          </ul>
-        </div>
-
-        {/* Group 2: Energy & Emissions Records */}
-        <div className={`p-4 rounded-xl border transition ${
-          uploadContext === 'energy_emissions'
-            ? 'bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20'
-            : 'bg-white border-slate-200'
-        }`}>
-          <div className="flex items-center space-x-2 text-emerald-900 font-bold text-xs mb-2">
-            <Zap className="w-4 h-4 text-emerald-600" />
-            <span>Energy & Emissions Records</span>
-            {uploadContext === 'energy_emissions' && (
-              <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-600 text-white uppercase font-bold">
-                Prioritised
-              </span>
-            )}
-          </div>
-          <ul className="text-xs text-slate-600 space-y-1">
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              <span>TNB Electricity bills (kWh) — Scope 2</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              <span>Commercial Fleet Diesel & Petrol receipts (L) — Scope 1</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              <span>Natural gas & LPG cylinder statements (m³) — Scope 1</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              <span>Municipal water bills (m³) & utility outlays</span>
-            </li>
-          </ul>
-        </div>
-
-        {/* Group 3: Operational Records */}
-        <div className="p-4 rounded-xl border bg-white border-slate-200">
-          <div className="flex items-center space-x-2 text-slate-800 font-bold text-xs mb-2">
-            <Building className="w-4 h-4 text-slate-600" />
-            <span>Operational Records</span>
-          </div>
-          <ul className="text-xs text-slate-600 space-y-1">
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-              <span>Production volume & manufacturing units</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-              <span>Equipment specs & motor/boiler ratings</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-              <span>Operating hours & facility shift schedules</span>
-            </li>
-          </ul>
-        </div>
+      <div className="gb-document-categories">
+        <article><Coins size={17} /><div><h2>Financial Records</h2><p>Statements, bank records and accounts.</p></div></article>
+        <article><Zap size={17} /><div><h2>Energy &amp; Emissions Records</h2><p>Electricity bills, fuel and gas records.</p></div></article>
+        <article><Building size={17} /><div><h2>Operational Records</h2><p>Equipment, production and operating hours.</p></div></article>
       </div>
 
       {/* Drag & Drop File Upload Area with OCR Support */}
@@ -575,7 +403,15 @@ export const DataIngestionView: React.FC = () => {
           handleFiles(e.dataTransfer.files);
         }}
         onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition ${
+        role="button"
+        tabIndex={0}
+        aria-label="Browse documents to upload"
+        onKeyDown={event => {
+          if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault(); fileInputRef.current?.click();
+          }
+        }}
+        className={`gb-document-dropzone border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition ${
           isDragging
             ? 'border-emerald-500 bg-emerald-50/50 scale-[1.01]'
             : 'border-slate-300 hover:border-emerald-400 bg-white hover:bg-slate-50/50'
@@ -602,10 +438,10 @@ export const DataIngestionView: React.FC = () => {
             </div>
             <div>
               <h3 className="text-base font-bold text-emerald-900">
-                {ocrProgressMsg || 'Extracting document data with AI OCR engine...'}
+                {ocrProgressMsg || 'Reading your document...'}
               </h3>
               <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-                Analyzing utility readings (kWh / Liters / RM), dates, and mapping to official GHG emission factors.
+                Checking the figures and dates in your document.
               </p>
             </div>
           </div>
@@ -616,11 +452,11 @@ export const DataIngestionView: React.FC = () => {
             </div>
 
             <h3 className="text-base font-bold text-slate-900">
-              Drop your {uploadContext === 'energy_emissions' ? 'utility bills, fuel receipts, or energy records' : 'business, utility, or financial files'} here, or <span className="text-emerald-600 underline">browse</span>
+              Drop files here or <span className="text-emerald-600 underline">browse</span>
             </h3>
 
             <p className="text-xs text-slate-500 mt-1.5 max-w-lg mx-auto leading-relaxed">
-              Supports <strong>PDF Statements</strong> (.pdf), <strong>Scanned Bill Images / Photos</strong> (.png, .jpg, .jpeg, .webp), and <strong>Spreadsheets</strong> (.csv, .xlsx, .xls). AI OCR automatically extracts dates, kWh, liters, and monetary amounts.
+              PDF, CSV, Excel and images supported. AI-assisted extraction is available for bills and statements.
             </p>
           </>
         )}
@@ -684,40 +520,6 @@ export const DataIngestionView: React.FC = () => {
           </div>
         )}
 
-        {/* Quick OCR Test Demonstrators */}
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-2"
-        >
-          <span className="text-[11px] font-semibold text-slate-500 mr-1">Instant OCR Demos:</span>
-          <button
-            type="button"
-            onClick={() => handleLoadSampleOcrBill('tnb_electricity')}
-            disabled={isProcessing}
-            className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-[11px] font-bold text-amber-900 transition flex items-center gap-1 shadow-2xs"
-          >
-            <Zap className="w-3 h-3 text-amber-600" />
-            <span>TNB Electricity Bill (PDF)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleLoadSampleOcrBill('petronas_diesel')}
-            disabled={isProcessing}
-            className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-[11px] font-bold text-emerald-900 transition flex items-center gap-1 shadow-2xs"
-          >
-            <FileText className="w-3 h-3 text-emerald-600" />
-            <span>Petronas Diesel Receipt (Image)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleLoadSampleOcrBill('gas_malaysia')}
-            disabled={isProcessing}
-            className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[11px] font-bold text-blue-900 transition flex items-center gap-1 shadow-2xs"
-          >
-            <Building className="w-3 h-3 text-blue-600" />
-            <span>Gas Malaysia Statement (PDF)</span>
-          </button>
-        </div>
       </div>
 
       {/* Import Feedback Banner */}
@@ -739,7 +541,7 @@ export const DataIngestionView: React.FC = () => {
               <p className="text-sm font-bold">
                 {importStatus.success
                   ? importStatus.importedCount > 0
-                    ? `Successfully ingested ${importStatus.importedCount} verified records into TransitionAI!`
+                    ? `Successfully processed ${importStatus.importedCount} records.`
                     : (importStatus.message || 'Records processed safely.')
                   : 'Import validation failed'}
               </p>
@@ -762,12 +564,7 @@ export const DataIngestionView: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0">
-            <button
-              onClick={handleReturnToOrigin}
-              className="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-white text-xs font-semibold text-slate-700 transition"
-            >
-              {returnSourceSection === 'activity_evidence' ? '← Back to Evidence Card' : '← Back to Overview'}
-            </button>
+
             {importStatus.success && (
               <>
                 <button
@@ -795,10 +592,10 @@ export const DataIngestionView: React.FC = () => {
           <div className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-bold shadow-xs">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-200" />
-              <span>Step 2: Review Verified Extraction for "{currentFile.fileName}"</span>
+              <span>Review extracted data for "{currentFile.fileName}"</span>
             </div>
             <span className="text-emerald-100 font-normal">
-              Review details below & click "Confirm & Ingest" to add to baseline
+              Check the details below, then confirm to add these records.
             </span>
           </div>
 
@@ -806,7 +603,7 @@ export const DataIngestionView: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2">
                 <span className="font-bold text-base text-slate-900">
-                  {currentFile.isOcrParsed ? 'Review AI OCR Extraction' : 'Map Columns'} for "{currentFile.fileName}"
+                  {currentFile.isOcrParsed ? 'Review extracted data' : 'Map Columns'} for "{currentFile.fileName}"
                 </span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-800 uppercase">
                   {currentFile.fileType}
@@ -814,7 +611,7 @@ export const DataIngestionView: React.FC = () => {
                 {currentFile.isOcrParsed && (
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
                     <Sparkles className="w-3 h-3 text-emerald-600" />
-                    <span>OCR Extracted</span>
+                    <span>Data extracted</span>
                   </span>
                 )}
               </div>
@@ -875,7 +672,7 @@ export const DataIngestionView: React.FC = () => {
                     className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition flex items-center gap-1"
                   >
                     <SlidersHorizontal className="w-3 h-3 text-slate-500" />
-                    <span>{showAdvancedMapping ? 'Hide Schema Mapping' : 'Adjust Mapping'}</span>
+                    <span>{showAdvancedMapping ? 'Hide column mapping' : 'Adjust Mapping'}</span>
                   </button>
                 </div>
               </div>
@@ -885,7 +682,7 @@ export const DataIngestionView: React.FC = () => {
                 <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs">
                   <div className="text-[10px] uppercase font-bold text-slate-400">Billing Date / Period</div>
                   <div className="text-sm font-bold text-slate-900 mt-0.5">{currentFile.ocrDocument.billingPeriodOrDate}</div>
-                  <div className="text-[10px] text-slate-500">Verified Invoice Date</div>
+                  <div className="text-[10px] text-slate-500">Extracted invoice date</div>
                 </div>
 
                 <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs">
@@ -1133,70 +930,40 @@ export const DataIngestionView: React.FC = () => {
               <CheckCircle2 className="w-4 h-4" />
               <span>
                 {currentFile.isOcrParsed
-                  ? `Confirm & Ingest Verified Document (${currentFile.sampleRows.length} record)`
-                  : `Confirm & Ingest Verified Records (${currentFile.sampleRows.length})`}
+                  ? `Confirm document (${currentFile.sampleRows.length} record)`
+                  : `Confirm records (${currentFile.sampleRows.length})`}
               </span>
             </button>
           </div>
         </div>
       )}
 
-      {/* History of Uploaded Files & Evidence */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-base font-bold text-slate-900">Source File Registry & Ingestion Log</h3>
-          <span className="text-xs font-semibold text-slate-500">
-            {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} registered
-          </span>
-        </div>
-        <p className="text-xs text-slate-500 mb-4">
-          All imported records maintain permanent cryptographic traceability to their source file and upload timestamp.
-        </p>
-
-        {uploadedFiles.length === 0 ? (
-          <div className="py-8 text-center text-xs text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
-            No files currently in the source evidence registry. Upload bills above or click "Load Apex Industrial Dataset".
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase text-[10px] tracking-wider">
-                <tr>
-                  <th className="py-2.5 px-3">File Name</th>
-                  <th className="py-2.5 px-3">Format</th>
-                  <th className="py-2.5 px-3">Category</th>
-                  <th className="py-2.5 px-3">Records Ingested</th>
-                  <th className="py-2.5 px-3">Upload Timestamp</th>
-                  <th className="py-2.5 px-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {uploadedFiles.map((f) => (
-                  <tr key={f.id} className="hover:bg-slate-50">
-                    <td className="py-2.5 px-3 font-semibold text-slate-900 flex items-center gap-1.5">
-                      <FileSpreadsheet className="w-3.5 h-3.5 text-slate-500" />
-                      <span>{f.fileName}</span>
-                      {f.isOcrParsed && (
-                        <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-100 text-blue-800">
-                          OCR Verified
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-2.5 px-3 uppercase font-mono text-[10px]">{f.fileType}</td>
-                    <td className="py-2.5 px-3">{f.detectedCategory}</td>
-                    <td className="py-2.5 px-3 font-bold text-emerald-700">{f.recordsImported} rows</td>
-                    <td className="py-2.5 px-3 text-slate-500">{new Date(f.uploadTimestamp).toLocaleString()}</td>
-                    <td className="py-2.5 px-3">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                        {f.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      <section className="gb-documents-registry" aria-labelledby="uploaded-documents-heading">
+        <div className="gb-panel-heading"><h2 id="uploaded-documents-heading">Uploaded Documents</h2><span>{uploadedFiles.length} document{uploadedFiles.length !== 1 ? 's' : ''}</span></div>
+        <p>Uploaded records remain linked to their source documents for review and audit.</p>
+        {!uploadedFiles.length ? <div className="gb-documents-empty">No documents yet. Upload files above or choose Load Sample Data.</div> : (
+          <div className="gb-document-list"><table><thead><tr><th>Filename</th><th>Document type</th><th>Processing status</th><th>Confidence</th></tr></thead><tbody>
+            {uploadedFiles.map(file => {
+              const confidence = file.ocrDocument?.confidenceScore;
+              const hasConfidence = typeof confidence === 'number' && Number.isFinite(confidence) && confidence >= 0 && confidence <= 100;
+              return <tr key={file.id}>
+                <td><details className="gb-document-file"><summary>{file.fileName}</summary><p>{file.fileType.toUpperCase()} | {file.recordsImported} records | {new Date(file.uploadTimestamp).toLocaleString()}</p>{file.errors?.map((error, index) => <p key={index}>{error}</p>)}</details></td>
+                <td>{file.ocrDocument?.documentType || documentLabels[file.detectedCategory] || 'Business document'}</td>
+                <td><span className={`gb-document-status gb-document-status-${file.status}`}>{file.status === 'imported' ? <><CheckCircle2 size={13} /> Processed{file.recordsFlagged > 0 ? ' - review flagged records' : ''}</> : file.status === 'failed' ? <><AlertCircle size={13} /> Needs review</> : 'Awaiting review'}</span></td>
+                <td>{hasConfidence ? `${confidence}% confidence` : 'Not available'}</td>
+              </tr>;
+            })}
+          </tbody></table></div>
         )}
+      </section>
+      <div className="gb-documents-next">
+        {importStatus && <div>            <button
+              onClick={handleReturnToOrigin}
+              className="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-white text-xs font-semibold text-slate-700 transition"
+            >
+              {returnSourceSection === 'activity_evidence' ? '← Back to Evidence Card' : '← Back to Overview'}
+            </button></div>}
+        <button className="gb-button gb-primary" onClick={() => setActiveTab('baseline')}>Review Carbon Analysis <ArrowRight size={15} /></button>
       </div>
     </div>
   );
