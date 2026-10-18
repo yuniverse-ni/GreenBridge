@@ -1,4 +1,7 @@
 // TransitionAI State & Operations Context
+import { useDemoAuth } from '../auth/DemoAuth';
+import { requirePermission } from '../auth/permissions';
+import { useWorkspaceRoute } from '../auth/useWorkspaceRoute';
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import {
   UserRole,
@@ -34,7 +37,6 @@ interface CopilotMessage {
 interface TransitionContextType {
   // Roles & Navigation
   currentRole: UserRole;
-  setCurrentRole: (role: UserRole) => void;
   activeTab: TransitionTab;
   setActiveTab: (tab: TransitionTab) => void;
   activeLenderToken: string | null;
@@ -98,8 +100,11 @@ interface TransitionContextType {
 const TransitionContext = createContext<TransitionContextType | undefined>(undefined);
 
 export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentRole, setCurrentRole] = useState<UserRole>('sme_owner');
-  const [activeTab, setActiveTab] = useState<TransitionTab>('overview');
+  const { session } = useDemoAuth();
+  if (!session) throw new Error('Sign in before opening a workspace');
+  const currentRole = session.role;
+  const [route, setActiveTab] = useWorkspaceRoute('overview');
+  const activeTab = route as TransitionTab;
   const [activeLenderToken, setActiveLenderToken] = useState<string | null>(null);
 
   // Upload Context & Navigation
@@ -160,6 +165,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Fetch initial state from backend
   const refreshState = useCallback(async () => {
+    requirePermission(currentRole, 'manage_data');
     try {
       setIsLoading(true);
       const res = await fetch('/api/transition/state');
@@ -179,7 +185,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentRole]);
 
   useEffect(() => {
     refreshState();
@@ -187,6 +193,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Update Profile
   const updateProfile = async (updates: Partial<BusinessProfile>) => {
+    requirePermission(currentRole, 'manage_data');
     try {
       const res = await fetch('/api/transition/profile', {
         method: 'POST',
@@ -205,6 +212,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Update Financial Model
   const updateFinancialModel = async (model: StoredFinancialModel) => {
+    requirePermission(currentRole, 'manage_data');
     try {
       const res = await fetch('/api/transition/financial-model', {
         method: 'POST',
@@ -222,6 +230,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Clear workspace to clean state
   const clearWorkspace = async () => {
+    requirePermission(currentRole, 'manage_data');
     try {
       setIsLoading(true);
       const res = await fetch('/api/transition/clear', { method: 'POST' });
@@ -237,6 +246,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Load realistic sample data
   const loadSampleData = async () => {
+    requirePermission(currentRole, 'manage_data');
     try {
       setIsLoading(true);
       const res = await fetch('/api/transition/load-sample', { method: 'POST' });
@@ -252,6 +262,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Toggle decarbonisation action
   const toggleAction = async (actionId: string) => {
+    requirePermission(currentRole, 'select_actions');
     try {
       const res = await fetch('/api/transition/action/toggle', {
         method: 'POST',
@@ -269,6 +280,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Inspect uploaded files
   const inspectFiles = async (files: File[]) => {
+    requirePermission(currentRole, 'manage_data');
     const formData = new FormData();
     files.forEach((f) => formData.append('files', f));
 
@@ -294,6 +306,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     ocrDocument?: any;
     isOcrParsed?: boolean;
   }) => {
+    requirePermission(currentRole, 'manage_data');
     const res = await fetch('/api/transition/upload/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -310,6 +323,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Create shared lender package
   const createLenderPackage = async (packageName?: string, disclosures?: any, executiveSummaryText?: string): Promise<LenderPackage> => {
+    requirePermission(currentRole, 'approve_disclosure');
     const res = await fetch('/api/transition/lender-package/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -326,6 +340,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Send message to AI Copilot
   const sendCopilotMessage = async (message: string) => {
+    requirePermission(currentRole, 'ask_copilot');
     if (!message.trim()) return;
 
     const userMsg: CopilotMessage = {
@@ -415,7 +430,6 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     <TransitionContext.Provider
       value={{
         currentRole,
-        setCurrentRole,
         activeTab,
         setActiveTab,
         activeLenderToken,
