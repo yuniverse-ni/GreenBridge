@@ -7,6 +7,7 @@ import multer from 'multer';
 import * as XLSX from 'xlsx';
 import { GoogleGenAI } from '@google/genai';
 import { createTransitionRouter } from './src/server/transitionRouter';
+import { createCarbonRouter } from './src/server/carbonRouter';
 
 dotenv.config();
 
@@ -14,7 +15,35 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const HOST = process.env.HOST || '127.0.0.1';
+const DEFAULT_PORT = Number(process.env.PORT) || 3000;
+
+function listenWithFallback(port: number, maxAttempts = 10): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const tryListen = (currentPort: number, remainingAttempts: number) => {
+      const server = app.listen(currentPort, HOST, () => {
+        resolve(currentPort);
+      });
+
+      server.once('error', (error: NodeJS.ErrnoException) => {
+        if (error.code === 'EADDRINUSE') {
+          if (remainingAttempts > 0) {
+            console.warn(`[CashPilot Server] Port ${currentPort} is busy; retrying on ${currentPort + 1}.`);
+            server.close(() => tryListen(currentPort + 1, remainingAttempts - 1));
+            return;
+          }
+
+          reject(new Error(`No free port was available starting from ${port}.`));
+          return;
+        }
+
+        reject(error);
+      });
+    };
+
+    tryListen(port, maxAttempts);
+  });
+}
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -122,6 +151,7 @@ if (apiKey && apiKey !== 'MY_GEMINI_API_KEY') {
 
 // Mount TransitionAI green finance & decarbonisation copilot routes
 app.use('/api/transition', createTransitionRouter(aiClient));
+app.use('/api/carbon', createCarbonRouter(aiClient));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -686,9 +716,13 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[CashPilot Server] Running on http://0.0.0.0:${PORT}`);
-  });
+  try {
+    const actualPort = await listenWithFallback(DEFAULT_PORT);
+    console.log(`[CashPilot Server] Running on http://${HOST}:${actualPort}`);
+  } catch (err) {
+    console.error('[CashPilot Server] Unable to bind a local port:', err);
+    process.exit(1);
+  }
 }
 
 startServer();

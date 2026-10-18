@@ -255,19 +255,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .gb-action-toolbar label { display: flex; align-items: center; gap: 12px; font-size: 11px; color: #718176; }
 .gb-action-toolbar select { padding: 8px 30px 8px 10px; border: 1px solid #d7e1d9; border-radius: 4px; background: white; font-size: 11px; color: #2f513c; }
 .gb-action-toolbar p { font-size: 10px; color: #8a958c; }
-.gb-action-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; min-height: 0; flex: 1; max-height: 580px; }
-.gb-action-card { display: flex; flex-direction: column; padding: 24px; background: #fff; border: 1px solid #dce4df; border-radius: 6px; min-width: 0; }
+.gb-action-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; min-height: 0; flex: 1; align-items: stretch; }
+.gb-action-card { display: flex; flex-direction: column; padding: 24px; background: #fff; border: 1px solid #dce4df; border-radius: 6px; min-width: 0; height: 100%; }
 .gb-action-card.is-selected { border-color: #739f82; box-shadow: inset 0 3px #548567; }
 .gb-action-card-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
 .gb-action-card-heading > span { color: #6e8776; font-size: 10px; }
 .gb-action-card input, .gb-selected-action-row input { width: 16px; height: 16px; accent-color: #286d4d; cursor: pointer; }
-.gb-action-card h2 { font-size: clamp(15px, 1.5vw, 21px); line-height: 1.4; font-weight: 600; color: #2b4a36; letter-spacing: -.3px; margin-bottom: 14px; }
+.gb-action-card h2 { font-size: clamp(15px, 1.5vw, 21px); line-height: 1.35; font-weight: 600; color: #2b4a36; letter-spacing: -.3px; margin-bottom: 14px; min-height: 72px; }
 .gb-action-card dl { margin-top: auto; }
-.gb-action-card dl > div { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 14px 0; border-bottom: 1px solid #edf1ed; }
-.gb-action-card dt { font-size: 10px; color: #819086; }
-.gb-action-card dd { font-size: clamp(12px, 1.2vw, 16px); font-weight: 550; color: #31583f; text-align: right; font-variant-numeric: tabular-nums; }
+.gb-action-card dl > div { display: grid; grid-template-columns: minmax(110px, 1fr) auto; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #edf1ed; }
+.gb-action-card dt { font-size: 10px; color: #819086; white-space: nowrap; }
+.gb-action-card dd { display: flex; align-items: baseline; justify-content: flex-end; gap: 4px; flex-wrap: wrap; font-size: clamp(12px, 1.2vw, 16px); font-weight: 550; color: #31583f; text-align: right; font-variant-numeric: tabular-nums; margin-left: auto; }
 .gb-action-card dd small { font-size: 10px; font-weight: 400; color: #8b968b; }
-.gb-action-card > .gb-button { align-self: flex-start; margin-top: 22px; }
+.gb-action-card > .gb-button { align-self: flex-start; margin-top: auto; }
 .gb-action-pagination { display: flex; justify-content: space-between; align-items: center; min-height: 34px; margin-top: auto; font-size: 10px; color: #86918a; }
 .gb-action-pagination > div { display: flex; gap: 8px; }
 .gb-actions-empty { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 36px; }
@@ -285,7 +285,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .gb-action-dialog-body h3 { font-size: 15px; margin-bottom: 14px; }
 .gb-selected-action-row { display: flex; align-items: center; gap: 10px; padding-top: 16px; font-size: 12px; }
 @media (max-height: 780px) and (min-width: 801px) { .gb-actions-page { gap: 14px; } .gb-scope-guide { padding-bottom: 12px; } .gb-action-card { padding: 18px; } .gb-action-card-heading { margin-bottom: 12px; } .gb-action-card h2 { font-size: 16px; } .gb-action-card dl > div { padding: 11px 0; } .gb-action-card > .gb-button { margin-top: 16px; } }
-@media (max-width: 1100px) and (min-width: 801px) { .gb-action-cards { gap: 12px; } .gb-action-card { padding: 16px; } .gb-action-card dl > div { flex-wrap: wrap; gap: 3px; } .gb-action-card dt { width: 100%; } .gb-action-card dd { text-align: left; } .gb-action-toolbar p { max-width: 200px; text-align: right; } }
+@media (max-width: 1100px) and (min-width: 801px) { .gb-action-cards { gap: 12px; } .gb-action-card { padding: 16px; } .gb-action-card dl > div { grid-template-columns: minmax(100px, 1fr) auto; gap: 8px; } .gb-action-card dt { width: auto; } .gb-action-card dd { text-align: right; } .gb-action-toolbar p { max-width: 200px; text-align: right; } }
 @media (max-width: 800px) { .gb-actions-page { height: auto; min-height: 100%; } .gb-action-cards { grid-template-columns: 1fr; max-height: none; } .gb-action-card { padding: 22px; } .gb-action-card h2 { font-size: 19px; } .gb-action-toolbar { align-items: flex-start; flex-direction: column; gap: 9px; } .gb-scope-guide { align-items: flex-start; flex-direction: column; gap: 6px; } }
 
 /* Financing simulation: three peer cards and a single gated generation action. */

@@ -1,0 +1,1352 @@
+{
+  "$defs": {
+    "ActivityData": {
+      "additionalProperties": false,
+      "properties": {
+        "electricity_kwh": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Electricity Kwh"
+        },
+        "diesel_litres": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Diesel Litres"
+        },
+        "petrol_litres": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Petrol Litres"
+        },
+        "natural_gas_m3": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Natural Gas M3"
+        },
+        "lpg_kg": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lpg Kg"
+        }
+      },
+      "title": "ActivityData",
+      "type": "object"
+    },
+    "EvidenceGap": {
+      "additionalProperties": false,
+      "properties": {
+        "gap_type": {
+          "title": "Gap Type",
+          "type": "string"
+        },
+        "affected_field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Affected Field"
+        },
+        "severity": {
+          "enum": [
+            "INFO",
+            "WARNING",
+            "ERROR"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "recommended_action": {
+          "title": "Recommended Action",
+          "type": "string"
+        },
+        "missing_periods": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Periods",
+          "type": "array"
+        }
+      },
+      "required": [
+        "gap_type",
+        "severity",
+        "message",
+        "recommended_action"
+      ],
+      "title": "EvidenceGap",
+      "type": "object"
+    },
+    "FieldMapping": {
+      "additionalProperties": false,
+      "properties": {
+        "original_column": {
+          "title": "Original Column",
+          "type": "string"
+        },
+        "mapped_field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mapped Field"
+        },
+        "detected_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detected Unit"
+        },
+        "normalized_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Unit"
+        },
+        "mapping_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 0,
+          "title": "Mapping Confidence"
+        },
+        "mapping_method": {
+          "enum": [
+            "exact",
+            "alias",
+            "fuzzy",
+            "unmapped",
+            "ambiguous",
+            "human_confirmed",
+            "ai_mapped_confirmed"
+          ],
+          "title": "Mapping Method",
+          "type": "string"
+        },
+        "row": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Row"
+        }
+      },
+      "required": [
+        "original_column",
+        "mapping_method"
+      ],
+      "title": "FieldMapping",
+      "type": "object"
+    },
+    "FinancialData": {
+      "additionalProperties": false,
+      "properties": {
+        "revenue": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revenue"
+        },
+        "operating_expenses": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operating Expenses"
+        },
+        "cash_balance": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cash Balance"
+        },
+        "annual_debt_service": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Annual Debt Service"
+        },
+        "capex_budget": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Capex Budget"
+        },
+        "minimum_cash_reserve": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum Cash Reserve"
+        }
+      },
+      "title": "FinancialData",
+      "type": "object"
+    },
+    "IntakeError": {
+      "additionalProperties": false,
+      "properties": {
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        },
+        "file_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "File Id"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stage",
+        "message"
+      ],
+      "title": "IntakeError",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "MappingRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "file_id": {
+          "title": "File Id",
+          "type": "string"
+        },
+        "original_column": {
+          "title": "Original Column",
+          "type": "string"
+        },
+        "row": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Row"
+        },
+        "sheet": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sheet"
+        },
+        "detected_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detected Unit"
+        },
+        "deterministic_field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deterministic Field"
+        },
+        "mapping_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mapping Confidence"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "request_id",
+        "file_id",
+        "original_column",
+        "reason"
+      ],
+      "title": "MappingRequest",
+      "type": "object"
+    },
+    "MappingWarning": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "source_file": {
+          "title": "Source File",
+          "type": "string"
+        },
+        "original_column": {
+          "title": "Original Column",
+          "type": "string"
+        },
+        "row": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Row"
+        },
+        "sheet": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sheet"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "source_file",
+        "original_column"
+      ],
+      "title": "MappingWarning",
+      "type": "object"
+    },
+    "ModuleReadiness": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "READY",
+            "PARTIAL",
+            "BLOCKED"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "partial_accepted": {
+          "default": false,
+          "title": "Partial Accepted",
+          "type": "boolean"
+        },
+        "may_proceed": {
+          "default": false,
+          "title": "May Proceed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "status",
+        "reasons"
+      ],
+      "title": "ModuleReadiness",
+      "type": "object"
+    },
+    "NormalizedDataset": {
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/SMEMetadata"
+        },
+        "financial": {
+          "$ref": "#/$defs/FinancialData"
+        },
+        "activity": {
+          "$ref": "#/$defs/ActivityData"
+        },
+        "provenance": {
+          "additionalProperties": {
+            "items": {
+              "$ref": "#/$defs/Provenance"
+            },
+            "type": "array"
+          },
+          "title": "Provenance",
+          "type": "object"
+        },
+        "mappings": {
+          "items": {
+            "$ref": "#/$defs/FieldMapping"
+          },
+          "title": "Mappings",
+          "type": "array"
+        },
+        "unmapped_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unmapped Fields",
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "$ref": "#/$defs/MappingWarning"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "title": "NormalizedDataset",
+      "type": "object"
+    },
+    "PartialAcceptance": {
+      "additionalProperties": false,
+      "properties": {
+        "actor": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Actor",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Reason",
+          "type": "string"
+        },
+        "decided_at": {
+          "format": "date-time",
+          "title": "Decided At",
+          "type": "string"
+        },
+        "modules": {
+          "items": {
+            "enum": [
+              "carbon_analysis",
+              "financial_analysis",
+              "transition_analysis"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Modules",
+          "type": "array"
+        },
+        "acknowledged_gaps": {
+          "items": {
+            "$ref": "#/$defs/EvidenceGap"
+          },
+          "title": "Acknowledged Gaps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "actor",
+        "reason",
+        "decided_at",
+        "modules",
+        "acknowledged_gaps"
+      ],
+      "title": "PartialAcceptance",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "source_file": {
+          "title": "Source File",
+          "type": "string"
+        },
+        "source_document_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Document Id"
+        },
+        "source_type": {
+          "enum": [
+            "csv",
+            "xlsx"
+          ],
+          "title": "Source Type",
+          "type": "string"
+        },
+        "reporting_period": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reporting Period"
+        },
+        "extraction_method": {
+          "enum": [
+            "deterministic_csv",
+            "deterministic_xlsx"
+          ],
+          "title": "Extraction Method",
+          "type": "string"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "sheet": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sheet"
+        },
+        "row": {
+          "minimum": 2,
+          "title": "Row",
+          "type": "integer"
+        },
+        "column": {
+          "title": "Column",
+          "type": "string"
+        },
+        "original_value": {
+          "default": null,
+          "title": "Original Value"
+        },
+        "original_metric": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Metric"
+        },
+        "detected_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detected Unit"
+        },
+        "normalized_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Unit"
+        },
+        "mapping_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mapping Method"
+        },
+        "mapping_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mapping Confidence"
+        },
+        "confirmation_status": {
+          "default": "ACCEPTED",
+          "enum": [
+            "ACCEPTED",
+            "CONFIRMED"
+          ],
+          "title": "Confirmation Status",
+          "type": "string"
+        },
+        "confirmed_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confirmed By"
+        },
+        "confirmed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confirmed At"
+        },
+        "evidence_quality": {
+          "default": "UNKNOWN",
+          "enum": [
+            "DIRECT_MEASURED",
+            "INVOICE_DERIVED",
+            "ESTIMATED_PROXY",
+            "UNKNOWN"
+          ],
+          "title": "Evidence Quality",
+          "type": "string"
+        },
+        "evidence_quality_basis": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Quality Basis"
+        },
+        "semantic_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Semantic Confidence"
+        }
+      },
+      "required": [
+        "source_file",
+        "source_type",
+        "extraction_method",
+        "row",
+        "column"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "SMEMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "company_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Company Id"
+        },
+        "company_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Company Name"
+        },
+        "reporting_year": {
+          "anyOf": [
+            {
+              "maximum": 9999,
+              "minimum": 1900,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reporting Year"
+        },
+        "employees": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Employees"
+        },
+        "floor_area_m2": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Floor Area M2"
+        }
+      },
+      "title": "SMEMetadata",
+      "type": "object"
+    },
+    "SemanticSuggestion": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "original_column": {
+          "title": "Original Column",
+          "type": "string"
+        },
+        "suggested_field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Suggested Field"
+        },
+        "detected_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detected Unit"
+        },
+        "normalized_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Unit"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "mapping_method": {
+          "default": "ai_semantic_suggestion",
+          "enum": [
+            "ai_semantic_suggestion",
+            "unresolved"
+          ],
+          "title": "Mapping Method",
+          "type": "string"
+        },
+        "reasoning": {
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "requires_confirmation": {
+          "const": true,
+          "default": true,
+          "title": "Requires Confirmation",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "request_id",
+        "original_column",
+        "reasoning"
+      ],
+      "title": "SemanticSuggestion",
+      "type": "object"
+    },
+    "ValueEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "source_file": {
+          "title": "Source File",
+          "type": "string"
+        },
+        "source_document_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Document Id"
+        },
+        "original_column": {
+          "title": "Original Column",
+          "type": "string"
+        },
+        "original_metric": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Metric"
+        },
+        "row": {
+          "title": "Row",
+          "type": "integer"
+        },
+        "sheet": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sheet"
+        },
+        "reporting_period": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reporting Period"
+        },
+        "original_value": {
+          "$ref": "#/$defs/JsonValue"
+        },
+        "original_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Unit"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Normalized Value"
+        },
+        "normalized_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Unit"
+        },
+        "extraction_method": {
+          "title": "Extraction Method",
+          "type": "string"
+        },
+        "mapping_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mapping Method"
+        },
+        "mapping_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mapping Confidence"
+        },
+        "semantic_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Semantic Confidence"
+        },
+        "evidence_quality": {
+          "enum": [
+            "DIRECT_MEASURED",
+            "INVOICE_DERIVED",
+            "ESTIMATED_PROXY",
+            "UNKNOWN"
+          ],
+          "title": "Evidence Quality",
+          "type": "string"
+        },
+        "evidence_quality_basis": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Quality Basis"
+        },
+        "confirmation_status": {
+          "enum": [
+            "ACCEPTED",
+            "CONFIRMED"
+          ],
+          "title": "Confirmation Status",
+          "type": "string"
+        },
+        "confirmed_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confirmed By"
+        },
+        "confirmed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confirmed At"
+        },
+        "externally_verified": {
+          "const": false,
+          "default": false,
+          "title": "Externally Verified",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "field",
+        "source_file",
+        "original_column",
+        "row",
+        "original_value",
+        "normalized_value",
+        "extraction_method",
+        "evidence_quality",
+        "confirmation_status"
+      ],
+      "title": "ValueEvidence",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Public result; raw files/checkpoints are deliberately excluded.\n\nUse model_dump(mode='json')/model_dump_json() or as a FastAPI response model.\nA BLOCKED module never gains downstream permission from a partial override.",
+  "properties": {
+    "company": {
+      "$ref": "#/$defs/SMEMetadata"
+    },
+    "normalized_data": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NormalizedDataset"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/ValueEvidence"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "data_gaps": {
+      "items": {
+        "$ref": "#/$defs/EvidenceGap"
+      },
+      "title": "Data Gaps",
+      "type": "array"
+    },
+    "readiness": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ModuleReadiness"
+      },
+      "propertyNames": {
+        "enum": [
+          "carbon_analysis",
+          "financial_analysis",
+          "transition_analysis"
+        ]
+      },
+      "title": "Readiness",
+      "type": "object"
+    },
+    "agent_next_action": {
+      "enum": [
+        "PROCEED",
+        "REQUEST_EVIDENCE",
+        "REQUEST_CONFIRMATION",
+        "BLOCK"
+      ],
+      "title": "Agent Next Action",
+      "type": "string"
+    },
+    "requested_modules": {
+      "items": {
+        "enum": [
+          "carbon_analysis",
+          "financial_analysis",
+          "transition_analysis"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Requested Modules",
+      "type": "array"
+    },
+    "partial_acceptances": {
+      "items": {
+        "$ref": "#/$defs/PartialAcceptance"
+      },
+      "title": "Partial Acceptances",
+      "type": "array"
+    },
+    "mapping_requests": {
+      "items": {
+        "$ref": "#/$defs/MappingRequest"
+      },
+      "title": "Mapping Requests",
+      "type": "array"
+    },
+    "suggestions": {
+      "items": {
+        "$ref": "#/$defs/SemanticSuggestion"
+      },
+      "title": "Suggestions",
+      "type": "array"
+    },
+    "errors": {
+      "items": {
+        "$ref": "#/$defs/IntakeError"
+      },
+      "title": "Errors",
+      "type": "array"
+    },
+    "notices": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notices",
+      "type": "array"
+    },
+    "intake_status": {
+      "title": "Intake Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company",
+    "normalized_data",
+    "evidence",
+    "data_gaps",
+    "readiness",
+    "agent_next_action",
+    "requested_modules",
+    "intake_status"
+  ],
+  "title": "DataIntakeResult",
+  "type": "object"
+}

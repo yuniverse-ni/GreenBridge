@@ -3,6 +3,7 @@ import { useDemoAuth } from '../auth/DemoAuth';
 import { requirePermission } from '../auth/permissions';
 import { useWorkspaceRoute } from '../auth/useWorkspaceRoute';
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { api } from '../services/api';
 import {
   UserRole,
   TransitionTab,
@@ -202,18 +203,15 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     requirePermission(currentRole, 'manage_data');
     try {
       setIsLoading(true);
-      const res = await fetch('/api/transition/state');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.profile) setProfile(data.profile);
-        if (data.activityRecords) setActivityRecords(data.activityRecords);
-        if (data.bankTransactions) setBankTransactions(data.bankTransactions);
-        if (data.selectedActionIds) setSelectedActionIds(data.selectedActionIds);
-        if (data.lenderPackages) setLenderPackages(data.lenderPackages);
-        if (data.auditLogs) setAuditLogs(data.auditLogs);
-        if (data.uploadedFiles) setUploadedFiles(data.uploadedFiles);
-        if (data.financialModel !== undefined) setFinancialModel(data.financialModel);
-      }
+      const data = await api.get<any>('/api/transition/state');
+      if (data.profile) setProfile(data.profile);
+      if (data.activityRecords) setActivityRecords(data.activityRecords);
+      if (data.bankTransactions) setBankTransactions(data.bankTransactions);
+      if (data.selectedActionIds) setSelectedActionIds(data.selectedActionIds);
+      if (data.lenderPackages) setLenderPackages(data.lenderPackages);
+      if (data.auditLogs) setAuditLogs(data.auditLogs);
+      if (data.uploadedFiles) setUploadedFiles(data.uploadedFiles);
+      if (data.financialModel !== undefined) setFinancialModel(data.financialModel);
     } catch (err) {
       console.error('[TransitionAI] Failed to fetch state:', err);
     } finally {
@@ -229,16 +227,9 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const updateProfile = async (updates: Partial<BusinessProfile>) => {
     requirePermission(currentRole, 'manage_data');
     try {
-      const res = await fetch('/api/transition/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
-      });
-      if (res.ok) {
-        const json = await res.json();
-        setProfile(json.profile);
-        await refreshState();
-      }
+      const json = await api.post<{ profile: BusinessProfile }>('/api/transition/profile', updates);
+      setProfile(json.profile);
+      await refreshState();
     } catch (err) {
       console.error('[TransitionAI] Update profile failed:', err);
     }
@@ -248,15 +239,9 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const updateFinancialModel = async (model: StoredFinancialModel) => {
     requirePermission(currentRole, 'manage_data');
     try {
-      const res = await fetch('/api/transition/financial-model', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(model)
-      });
-      if (res.ok) {
-        setFinancialModel(model);
-        await refreshState();
-      }
+      await api.post('/api/transition/financial-model', model);
+      setFinancialModel(model);
+      await refreshState();
     } catch (err) {
       console.error('[TransitionAI] Update financial model failed:', err);
     }
@@ -267,10 +252,8 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     requirePermission(currentRole, 'manage_data');
     try {
       setIsLoading(true);
-      const res = await fetch('/api/transition/clear', { method: 'POST' });
-      if (res.ok) {
-        await refreshState();
-      }
+      await api.post('/api/transition/clear');
+      await refreshState();
     } catch (err) {
       console.error('[TransitionAI] Clear failed:', err);
     } finally {
@@ -283,10 +266,8 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     requirePermission(currentRole, 'manage_data');
     try {
       setIsLoading(true);
-      const res = await fetch('/api/transition/load-sample', { method: 'POST' });
-      if (res.ok) {
-        await refreshState();
-      }
+      await api.post('/api/transition/load-sample');
+      await refreshState();
     } catch (err) {
       console.error('[TransitionAI] Load sample failed:', err);
     } finally {
@@ -298,15 +279,8 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const toggleAction = async (actionId: string) => {
     requirePermission(currentRole, 'select_actions');
     try {
-      const res = await fetch('/api/transition/action/toggle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ actionId })
-      });
-      if (res.ok) {
-        const json = await res.json();
-        setSelectedActionIds(json.selectedActionIds);
-      }
+      const json = await api.post<{ selectedActionIds: string[] }>('/api/transition/action/toggle', { actionId });
+      setSelectedActionIds(json.selectedActionIds);
     } catch (err) {
       console.error('[TransitionAI] Toggle action failed:', err);
     }
@@ -318,15 +292,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const formData = new FormData();
     files.forEach((f) => formData.append('files', f));
 
-    const res = await fetch('/api/transition/upload/inspect', {
-      method: 'POST',
-      body: formData
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Failed to inspect files');
-    }
-    const json = await res.json();
+    const json = await api.post<{ files?: any[]; inspectedFiles?: any[] }>('/api/transition/upload/inspect', formData);
     return json.files || json.inspectedFiles || [];
   };
 
@@ -341,16 +307,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     isOcrParsed?: boolean;
   }) => {
     requirePermission(currentRole, 'manage_data');
-    const res = await fetch('/api/transition/upload/confirm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Import confirmation failed');
-    }
-    const json = await res.json();
+    const json = await api.post<any>('/api/transition/upload/confirm', payload);
     await refreshState();
     return json;
   };
@@ -358,16 +315,7 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // Create shared lender package
   const createLenderPackage = async (packageName?: string, disclosures?: any, executiveSummaryText?: string): Promise<LenderPackage> => {
     requirePermission(currentRole, 'approve_disclosure');
-    const res = await fetch('/api/transition/lender-package/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ packageName, disclosures, executiveSummaryText })
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Failed to create lender package');
-    }
-    const json = await res.json();
+    const json = await api.post<{ package: LenderPackage }>('/api/transition/lender-package/create', { packageName, disclosures, executiveSummaryText });
     await refreshState();
     return json.package;
   };
@@ -388,25 +336,15 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setIsCopilotLoading(true);
 
     try {
-      const res = await fetch('/api/transition/copilot/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, currentRole })
-      });
-
-      if (res.ok) {
-        const json = await res.json();
-        const aiMsg: CopilotMessage = {
-          id: `AI-${Date.now()}`,
-          sender: 'assistant',
-          text: json.reply,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          isAiPowered: json.aiPowered
-        };
-        setCopilotMessages((prev) => [...prev, aiMsg]);
-      } else {
-        throw new Error('Chat API returned error');
-      }
+      const json = await api.post<{ reply: string; aiPowered?: boolean }>('/api/transition/copilot/chat', { message, currentRole });
+      const aiMsg: CopilotMessage = {
+        id: `AI-${Date.now()}`,
+        sender: 'assistant',
+        text: json.reply,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isAiPowered: json.aiPowered
+      };
+      setCopilotMessages((prev) => [...prev, aiMsg]);
     } catch (err: any) {
       const fallbackMsg: CopilotMessage = {
         id: `AI-${Date.now()}`,
