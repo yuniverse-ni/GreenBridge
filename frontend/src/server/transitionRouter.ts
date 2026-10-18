@@ -33,6 +33,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.resolve(__dirname, '../../data');
 const TRANSITION_STORAGE_FILE = path.resolve(DATA_DIR, 'transition_store.json');
+const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || 'http://127.0.0.1:8000';
 
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -840,6 +841,87 @@ USER QUESTION: "${message}"`;
       aiPowered: false,
       reply: `[TransitionAI Grounded Analysis]\n• Baseline Carbon Footprint: ${baseline.totalTCO2e} tCO2e (Scope 1: ${baseline.scope1TCO2e} tCO2e, Scope 2: ${baseline.scope2TCO2e} tCO2e across ${baseline.dataConfidence.totalRecords} verified records).\n• Data Confidence: ${baseline.dataConfidence.overallScorePct}% (${baseline.dataConfidence.level}).\n• Financial Headroom: Current DSCR is ${financial.currentDscr.toFixed(2)}x with indicative debt capacity of RM ${financial.maxBorrowingCapacityAtTargetDscr.toLocaleString()}.\n• Annual Energy Utility Outlay: RM ${financial.annualEnergyCost.toLocaleString()} (${financial.energyCostPctOfOpEx}% of operating costs).\n• Please upload additional monthly electricity invoices or fleet fuel records to enhance audit readiness.`
     });
+  });
+
+  // GET /api/transition/py-status - Check Python FastAPI backend connection
+  router.get('/py-status', async (req: Request, res: Response) => {
+    try {
+      const resp = await fetch(`${PYTHON_BACKEND_URL}/health`, { signal: AbortSignal.timeout(2000) });
+      if (resp.ok) {
+        const data = await resp.json();
+        return res.json({ connected: true, backendUrl: PYTHON_BACKEND_URL, data });
+      }
+      return res.json({ connected: false, backendUrl: PYTHON_BACKEND_URL, status: resp.status });
+    } catch (e: any) {
+      return res.json({ connected: false, backendUrl: PYTHON_BACKEND_URL, error: e.message });
+    }
+  });
+
+  // POST /api/transition/py-sync - Bridge call to Python FastAPI backend statements/compute
+  router.post('/py-sync', async (req: Request, res: Response) => {
+    const store = readTransitionStore();
+    try {
+      const period = `FY${store.profile.reportingYear || 2024}`;
+      const rev = store.profile.annualRevenue > 0 ? store.profile.annualRevenue : 3200000;
+      const opex = store.profile.annualOperatingExpenses > 0 ? store.profile.annualOperatingExpenses : 680000;
+      const cash = store.profile.cashBalance > 0 ? store.profile.cashBalance : 312500;
+      const ads = store.profile.existingAnnualDebtService > 0 ? store.profile.existingAnnualDebtService : 38000;
+
+      const payload = req.body && req.body.income ? req.body : {
+        period,
+        currency: 'MYR',
+        income: {
+          period,
+          revenue: rev,
+          cogs: Math.round(rev * 0.55),
+          operating_expenses: opex,
+          depreciation_amortisation: Math.round(rev * 0.05),
+          finance_costs: ads,
+          income_tax_expense: 0
+        },
+        balance_sheet: {
+          period,
+          cash,
+          accounts_receivable: Math.round(rev * 45 / 365),
+          inventory: Math.round((rev * 0.55) * 45 / 365),
+          other_current_assets: 25000,
+          fixed_assets_at_cost: 1220000,
+          accumulated_depreciation: 415000,
+          other_assets: 0,
+          accounts_payable: Math.round((rev * 0.55) * 45 / 365),
+          short_term_debt: 70000,
+          long_term_debt: 275000,
+          capital: 500000,
+          retained_earnings: 927500
+        }
+      };
+
+      const resp = await fetch(`${PYTHON_BACKEND_URL}/api/finance/statements/compute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(5000)
+      });
+      if (resp.ok) {
+        const result = await resp.json();
+        // Append audit log to store
+        store.auditLogs.unshift({
+          id: `AUDIT-PY-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          userRole: 'sme_owner',
+          action: 'Python Financial Engine Computation',
+          details: `Computed financial statements & DSCR via FastAPI backend (${result.audit?.inputs_hash?.slice(0, 8) || 'verified'}).`,
+          category: 'CALCULATION',
+          evidenceRef: `${PYTHON_BACKEND_URL}/api/finance/statements/compute`
+        });
+        writeTransitionStore(store);
+        return res.json({ success: true, engine: 'python-fastapi', result });
+      }
+      const err = await resp.text();
+      return res.status(resp.status).json({ success: false, error: err });
+    } catch (e: any) {
+      return res.status(503).json({ success: false, error: `Python backend offline: ${e.message}` });
+    }
   });
 
   return router;

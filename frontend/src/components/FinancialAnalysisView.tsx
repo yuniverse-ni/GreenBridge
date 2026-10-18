@@ -37,11 +37,27 @@ import {
   Info,
   Clock,
   Briefcase,
-  X
+  X,
+  Zap,
+  RefreshCw
 } from 'lucide-react';
 
 export const FinancialAnalysisView: React.FC = () => {
-  const { financial, profile, selectedActions, updateProfile, setActiveTab } = useTransition();
+  const {
+    financial,
+    profile,
+    selectedActions,
+    updateProfile,
+    setActiveTab,
+    financialModel,
+    pythonEngineStatus,
+    isPythonSyncing,
+    pythonLastResult,
+    checkPythonEngine,
+    runPythonEngine
+  } = useTransition();
+
+  const [engineSyncBanner, setEngineSyncBanner] = useState<string | null>(null);
 
   // Active sub-tab
   const [activeSubTab, setActiveSubTab] = useState<
@@ -135,11 +151,159 @@ export const FinancialAnalysisView: React.FC = () => {
     7
   );
 
-  const { incomeStatement: is, balanceSheet: bs, cashFlowStatement: cfs, ratios } = standardModel;
+  const activeModel = financialModel || standardModel;
+  const { incomeStatement: is, balanceSheet: bs, cashFlowStatement: cfs, ratios } = activeModel;
 
   return (
     <section className="gb-financial-analysis" aria-labelledby="financial-analysis-heading">
-      <div className="gb-page-heading"><div><h1 id="financial-analysis-heading">Financial Analysis</h1><p>Assess the SME's financial position and capacity to fund transition investments.</p></div></div>
+      <div className="gb-page-heading">
+        <div>
+          <h1 id="financial-analysis-heading">Financial Analysis</h1>
+          <p>Assess the SME's financial position and capacity to fund transition investments.</p>
+        </div>
+      </div>
+
+      {/* Python Engine Direct Connection & Execution Card */}
+      <div
+        className="gb-panel"
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          padding: '16px 20px',
+          borderRadius: '12px',
+          background: pythonEngineStatus.connected ? 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%)' : '#fafafa',
+          border: `1px solid ${pythonEngineStatus.connected ? '#bbf7d0' : '#e2e8f0'}`,
+          marginBottom: '20px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: pythonEngineStatus.connected ? '#16a34a' : '#94a3b8',
+              color: '#ffffff',
+              boxShadow: pythonEngineStatus.connected ? '0 4px 12px rgba(22, 163, 74, 0.25)' : 'none'
+            }}
+          >
+            <Zap size={22} />
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <strong style={{ fontSize: '15px', color: '#0f172a' }}>
+                Python Deterministic Financial Engine
+              </strong>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  background: pythonEngineStatus.connected ? '#dcfce7' : '#fee2e2',
+                  color: pythonEngineStatus.connected ? '#15803d' : '#b91c1c'
+                }}
+              >
+                {pythonEngineStatus.connected ? 'FastAPI :8000 LIVE' : 'OFFLINE'}
+              </span>
+              {financialModel && (
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    padding: '2px 8px',
+                    borderRadius: '9999px',
+                    background: '#e0f2fe',
+                    color: '#0369a1'
+                  }}
+                >
+                  Verified by Python
+                </span>
+              )}
+            </div>
+            <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#64748b' }}>
+              {pythonEngineStatus.connected
+                ? `FastAPI backend active. Click to run 3-statement calculation, balance sheet proof, and DSCR covenants.`
+                : `Python backend offline. Start with "python -m uvicorn main:app --port 8000" in backend.`}
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            type="button"
+            className="gb-button"
+            style={{ fontSize: '12px', padding: '7px 12px' }}
+            onClick={() => checkPythonEngine()}
+            disabled={pythonEngineStatus.checking}
+          >
+            {pythonEngineStatus.checking ? 'Checking...' : 'Check Status'}
+          </button>
+          <button
+            type="button"
+            className="gb-button gb-primary"
+            style={{
+              fontSize: '13px',
+              padding: '8px 18px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: pythonEngineStatus.connected ? '#16a34a' : '#64748b',
+              cursor: pythonEngineStatus.connected && !isPythonSyncing ? 'pointer' : 'not-allowed'
+            }}
+            onClick={async () => {
+              const res = await runPythonEngine();
+              if (res.success) {
+                setEngineSyncBanner(res.message);
+                setTimeout(() => setEngineSyncBanner(null), 8000);
+              } else {
+                setEngineSyncBanner(`Error: ${res.message}`);
+              }
+            }}
+            disabled={!pythonEngineStatus.connected || isPythonSyncing}
+          >
+            {isPythonSyncing ? (
+              <>
+                <RefreshCw size={14} className="animate-spin" />
+                <span>Computing in Python...</span>
+              </>
+            ) : (
+              <>
+                <Zap size={14} />
+                <span>Run Financial Engine (FastAPI)</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Engine Computation Status Alert Banner */}
+      {engineSyncBanner && (
+        <div
+          style={{
+            padding: '12px 18px',
+            marginBottom: '18px',
+            borderRadius: '10px',
+            background: engineSyncBanner.startsWith('Error') ? '#fee2e2' : '#ecfdf5',
+            color: engineSyncBanner.startsWith('Error') ? '#991b1b' : '#065f46',
+            border: `1px solid ${engineSyncBanner.startsWith('Error') ? '#fca5a5' : '#a7f3d0'}`,
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.04)'
+          }}
+        >
+          {engineSyncBanner.startsWith('Error') ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
+          <strong>{engineSyncBanner}</strong>
+        </div>
+      )}
       <div className="gb-financial-kpis">
         <article><h2>Annual Revenue</h2><strong>{formatCurrency(financial.annualRevenue, profile.currency)}</strong></article>
         <article><h2>Operating EBITDA</h2><strong>{formatCurrency(financial.ebitda, profile.currency)}</strong></article>

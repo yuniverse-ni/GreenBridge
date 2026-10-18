@@ -68,7 +68,9 @@ export const DataIngestionView: React.FC = () => {
     loadSampleData,
     setActiveTab,
     refreshState,
-    isLoading
+    isLoading,
+    pythonEngineStatus,
+    uploadToPythonEngine
   } = useTransition();
 
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -363,6 +365,26 @@ export const DataIngestionView: React.FC = () => {
               </button>
             </div>
           </details>
+          {pythonEngineStatus.connected && (
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                padding: '4px 10px',
+                borderRadius: '9999px',
+                background: 'rgba(34, 197, 94, 0.1)',
+                color: '#15803d',
+                border: '1px solid rgba(34, 197, 94, 0.25)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              title="Python FastAPI intake bridge ready at port 8000"
+            >
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
+              Python Intake Pipeline Active
+            </span>
+          )}
           <button className="gb-button" onClick={loadSampleData} disabled={isProcessing || isLoading}>Load Sample Data</button>
         </div>
       </div>

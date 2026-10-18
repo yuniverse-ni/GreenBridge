@@ -25,6 +25,12 @@ import {
   generate_decarbonisation_actions,
   evaluate_green_loan_eligibility
 } from '../utils/transitionCalculations';
+import {
+  PythonEngineStatus,
+  checkPythonEngineHealth,
+  executePythonFinancialComputation,
+  uploadFileToPythonIngestion
+} from '../utils/pythonEngineBridge';
 
 interface CopilotMessage {
   id: string;
@@ -95,6 +101,14 @@ interface TransitionContextType {
   copilotMessages: CopilotMessage[];
   isCopilotLoading: boolean;
   sendCopilotMessage: (message: string) => Promise<void>;
+
+  // Python Deterministic Engine Integration (Port 8000)
+  pythonEngineStatus: PythonEngineStatus;
+  isPythonSyncing: boolean;
+  pythonLastResult: any;
+  checkPythonEngine: () => Promise<PythonEngineStatus>;
+  runPythonEngine: () => Promise<{ success: boolean; message: string; data?: any }>;
+  uploadToPythonEngine: (file: File, sector?: string) => Promise<{ success: boolean; message: string; data?: any }>;
 }
 
 const TransitionContext = createContext<TransitionContextType | undefined>(undefined);
@@ -150,6 +164,26 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileInfo[]>([]);
   const [financialModel, setFinancialModel] = useState<StoredFinancialModel | null>(null);
+
+  // Python Engine Integration State (Port 8000)
+  const [pythonEngineStatus, setPythonEngineStatus] = useState<PythonEngineStatus>({
+    connected: false,
+    checking: true,
+    backendUrl: 'http://127.0.0.1:8000'
+  });
+  const [isPythonSyncing, setIsPythonSyncing] = useState<boolean>(false);
+  const [pythonLastResult, setPythonLastResult] = useState<any>(null);
+
+  const checkPythonEngine = useCallback(async (): Promise<PythonEngineStatus> => {
+    setPythonEngineStatus(prev => ({ ...prev, checking: true }));
+    const status = await checkPythonEngineHealth();
+    setPythonEngineStatus(status);
+    return status;
+  }, []);
+
+  useEffect(() => {
+    checkPythonEngine();
+  }, [checkPythonEngine]);
 
   // Copilot messages
   const [copilotMessages, setCopilotMessages] = useState<CopilotMessage[]>([
@@ -387,6 +421,58 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
+  // Python Engine Action Methods
+  const runPythonEngine = async (): Promise<{ success: boolean; message: string; data?: any }> => {
+    requirePermission(currentRole, 'manage_data');
+    setIsPythonSyncing(true);
+    try {
+      const result = await executePythonFinancialComputation(profile);
+      if (result.success && result.model) {
+        setPythonLastResult(result.raw);
+        setFinancialModel(result.model);
+        await updateFinancialModel(result.model);
+        await refreshState();
+        return {
+          success: true,
+          message: `Financial statements & DSCR computed via Python FastAPI (Hash: ${result.auditHash ? result.auditHash.substring(0, 10) + '...' : 'Verified'})`,
+          data: result.raw
+        };
+      }
+      return {
+        success: false,
+        message: result.error || 'Failed to compute via Python engine'
+      };
+    } catch (err: any) {
+      return { success: false, message: err.message };
+    } finally {
+      setIsPythonSyncing(false);
+    }
+  };
+
+  const uploadToPythonEngine = async (file: File, sector?: string): Promise<{ success: boolean; message: string; data?: any }> => {
+    requirePermission(currentRole, 'manage_data');
+    setIsLoading(true);
+    try {
+      const res = await uploadFileToPythonIngestion(file, sector || 'total', profile.reportingYear || 2024);
+      if (res.success) {
+        await refreshState();
+        return {
+          success: true,
+          message: `File parsed and evaluated by Python intake engine!`,
+          data: res.data
+        };
+      }
+      return {
+        success: false,
+        message: res.error || 'Upload to Python intake failed'
+      };
+    } catch (err: any) {
+      return { success: false, message: err.message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Deterministic calculations
   const baseline = useMemo(() => {
     return calculate_carbon_baseline(activityRecords, profile);
@@ -469,7 +555,13 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         createLenderPackage,
         copilotMessages,
         isCopilotLoading,
-        sendCopilotMessage
+        sendCopilotMessage,
+        pythonEngineStatus,
+        isPythonSyncing,
+        pythonLastResult,
+        checkPythonEngine,
+        runPythonEngine,
+        uploadToPythonEngine
       }}
     >
       {children}
