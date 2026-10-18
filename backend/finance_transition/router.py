@@ -10,13 +10,18 @@ from pydantic import BaseModel
 
 from finance_transition.audit import create_audit_record
 from finance_transition.finance_models import (
+    BalanceSheet,
     BalanceSheetInputs,
     CashBudgetInputs,
     CashFlowInputs,
+    CashFlowStatement,
+    CollectionSchedule,
     DebtCapacityInputs,
     EnergyActivityInputs,
+    FinancialRatios,
     FinancialSummaryInputs,
     FinancingSimulationParams,
+    IncomeStatement,
     IncomeStatementInputs,
     ScenarioSimulateRequest,
     StatementsComputeRequest,
@@ -457,3 +462,77 @@ def simulate_scenario(payload: ScenarioSimulateRequest):
         "comparison": comparison,
         "audit": audit,
     }
+
+
+# ============================================================================
+# Ingestion Bridge Endpoints (Linking backend.data with finance_transition)
+# ============================================================================
+
+try:
+    from backend.data.models import NormalizedDataset
+    from backend.data.parser import DataImportError
+except ModuleNotFoundError:
+    from data.models import NormalizedDataset
+    from data.parser import DataImportError
+from finance_transition.adapter import (
+    ingest_and_evaluate,
+    normalized_to_canonical,
+)
+
+
+@router.post("/ingest/upload")
+async def ingest_uploaded_files(
+    files: list[UploadFile] = File(...),
+    sector: Optional[str] = Query(None, description="Optional sector filter for energy CSVs (e.g. 'total', 'local_commercial')"),
+    reporting_year: Optional[int] = Query(None, description="Optional reporting year (e.g. 2024)"),
+):
+    """Universal upload endpoint: Accepts raw CSV/XLSX files, executes Yuni's parser, adapts to canonical schema, and runs complete financial & transition evaluation."""
+    uploads = []
+    for f in files:
+        content = await f.read()
+        uploads.append((f.filename or "uploaded_file.csv", content))
+    try:
+        return ingest_and_evaluate(uploads, sector=sector, year=reporting_year)
+    except DataImportError as e:
+        raise HTTPException(status_code=400, detail=e.as_dict())
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/ingest/dataset")
+def ingest_normalized_dataset(dataset: NormalizedDataset):
+    """Directly accepts a NormalizedDataset (from backend.data or AI Data Intake Agent), converts to Canonical payload, and computes statements + transition plan."""
+    try:
+        canonical = normalized_to_canonical(dataset)
+        return statements_from_canonical(canonical)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/ingest/energy-csv")
+async def ingest_energy_csv(
+    file: UploadFile = File(...),
+    sector: str = Query("total", description="Sector name: total, local, local_commercial, local_domestic, exports, losses"),
+    year: Optional[int] = Query(2024, description="Target reporting year"),
+):
+    """Specialized ingestion for multi-sector time-series datasets like energy_sector_consumption.csv."""
+    content = await file.read()
+    uploads = [(file.filename or "energy_consumption.csv", content)]
+    try:
+        return ingest_and_evaluate(uploads, sector=sector, year=year)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/ingest/telemetry-csv")
+async def ingest_telemetry_csv(
+    file: UploadFile = File(...),
+    year: int = Query(2022, description="Target reporting year"),
+):
+    """Specialized ingestion for high-frequency IoT machine telemetry datasets like asset_telemetry.csv."""
+    content = await file.read()
+    uploads = [(file.filename or "asset_telemetry.csv", content)]
+    try:
+        return ingest_and_evaluate(uploads, year=year)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

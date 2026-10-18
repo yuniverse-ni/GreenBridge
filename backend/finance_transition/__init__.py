@@ -26,6 +26,13 @@ from finance_transition.transition_service import (
     simulate_financing,
 )
 
+from finance_transition.adapter import (
+    ingest_and_evaluate,
+    normalized_to_canonical,
+    parse_asset_telemetry_csv,
+    parse_energy_sector_csv,
+)
+
 __all__ = [
     "calculate_income_statement",
     "calculate_balance_sheet",
@@ -48,4 +55,8 @@ __all__ = [
     "compute_inputs_hash",
     "AuditRecord",
     "money",
+    "ingest_and_evaluate",
+    "normalized_to_canonical",
+    "parse_energy_sector_csv",
+    "parse_asset_telemetry_csv",
 ]

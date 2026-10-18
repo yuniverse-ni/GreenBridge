@@ -1,5 +1,6 @@
 """Test J: Multi-Currency Consistency Enforcement."""
 
+import os
 import pytest
 from fastapi.testclient import TestClient
 from finance_transition.finance_models import (
@@ -58,8 +59,14 @@ def test_api_refuses_non_myr_without_conversion():
 
 def test_template_reader_refuses_non_myr():
     """Template reader raises ValueError when non-MYR currency override is passed without FX rule."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    xlsx_path = os.path.join(
+        os.path.dirname(current_dir),
+        "finance_transition",
+        "File 1 - Financial Data Input Template.xlsx",
+    )
     with pytest.raises(ValueError, match="Multi-Currency Consistency Enforcement"):
         parse_financial_template(
-            "finance_transition/File 1 - Financial Data Input Template.xlsx",
+            xlsx_path,
             override_currency="USD",
         )
