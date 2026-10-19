@@ -75,14 +75,16 @@ names such as `electricity_kwh` already encode their unit.
 
 - `metadata`: company_id, company_name, reporting_year, employees, floor_area_m2.
 - `financial`: revenue, operating_expenses, cash_balance, annual_debt_service,
-  capex_budget, minimum_cash_reserve.
+  capex_budget, minimum_cash_reserve, cogs, operating_cash_flow, total_debt,
+  current_liabilities. The last four are optional for basic financial readiness;
+  operating_cash_flow supports signed values. Missing amounts remain null.
 - `activity`: electricity_kwh, diesel_litres, petrol_litres, natural_gas_m3, lpg_kg.
 - `provenance`: normalized field name → list of source_file, source_type
   (`csv`/`xlsx`), reporting_period, extraction_method, confidence, sheet, row, column.
 
 Each provenance entry also retains original_value, original_metric (key/value),
 detected_unit, normalized_unit, mapping_method and mapping_confidence.
-The normalized metadata/financial/activity schema remains unchanged.
+Supplemental financial values use the same mapping, units and provenance contract.
 
 Additional report fields:
 

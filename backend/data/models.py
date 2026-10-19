@@ -38,6 +38,17 @@ class FinancialData(ImportModel):
     annual_debt_service: float | None = Field(default=None, ge=0)
     capex_budget: float | None = Field(default=None, ge=0)
     minimum_cash_reserve: float | None = Field(default=None, ge=0)
+    cogs: float | None = Field(default=None, ge=0)
+    operating_cash_flow: float | None = None
+    total_debt: float | None = Field(default=None, ge=0)
+    current_liabilities: float | None = Field(default=None, ge=0)
+
+
+# Supplemental statement fields do not expand the basic intake requirements.
+BASIC_FINANCIAL_FIELDS = (
+    "revenue", "operating_expenses", "cash_balance", "annual_debt_service",
+    "capex_budget", "minimum_cash_reserve",
+)
 
 
 class ActivityData(ImportModel):

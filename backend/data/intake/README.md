@@ -219,7 +219,11 @@ Readiness for carbon, financial and transition analysis is `READY`, `PARTIAL` or
 `BLOCKED`, with reasons. Required context is company ID and reporting year.
 Carbon readiness considers activity presence, missing-category applicability,
 period coverage and source quality; financial readiness considers the six
-existing financial fields and source quality. Transition readiness depends on
+existing basic financial fields and source quality. Optional cogs,
+operating_cash_flow, total_debt and current_liabilities enrich the published
+dataset without becoming required inputs for basic readiness. Supplied optional
+fields receive the same validation and source-quality checks as other financial
+values; operating cash flow may be negative. Transition readiness depends on
 both. READY means structured input readiness, not completed analysis or credit
 approval. An explicit incomplete continuation never upgrades readiness.
 

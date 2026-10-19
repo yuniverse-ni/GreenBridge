@@ -11,6 +11,8 @@ for p in (project_root, backend_dir):
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from finance_transition.router import router as finance_router
+from backend.data.intake.router import router as intake_router, intake_registry
+from backend.agent.router import create_agent_router
 
 app = FastAPI(
     title="TransitionAI — Finance & Transition Backend",
@@ -41,3 +43,5 @@ app.include_router(finance_router, prefix="/api/finance")
 app.include_router(finance_router, prefix="/api/data")
 # Also mount root so direct paths without prefixes work seamlessly
 app.include_router(finance_router)
+app.include_router(intake_router)
+app.include_router(create_agent_router(intake_registry))

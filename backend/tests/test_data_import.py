@@ -120,6 +120,8 @@ class ImportTests(unittest.TestCase):
 
     def test_negative_nonfinite_and_invalid_numbers(self):
         for field in (*FinancialData.model_fields, *ActivityData.model_fields, "employees", "floor_area_m2"):
+            if field == "operating_cash_flow":
+                continue  # Operating cash outflows are valid signed financial values.
             with self.subTest(field=field), self.assertRaises(DataImportError):
                 self.ingest(f"{field}\n-1")
         for value in ("NaN", "Infinity", "-inf", "abc", "True", '"12,34"'):

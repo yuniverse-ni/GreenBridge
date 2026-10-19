@@ -8,7 +8,7 @@ from pathlib import Path
 from collections import defaultdict
 
 from ..mapping import EXPECTED_UNITS, canonical_unit, header_key, map_column
-from ..models import ActivityData, ConfirmedMapping, FinancialData, NormalizedDataset, ParsedDocument
+from ..models import ActivityData, BASIC_FINANCIAL_FIELDS, ConfirmedMapping, FinancialData, NormalizedDataset, ParsedDocument
 from ..parser import DataImportError, parse_upload
 from .models import DocumentClassification, EvidenceAssessment, EvidenceGap, Inspection, Readiness, Upload
 
@@ -192,7 +192,7 @@ def assess_readiness(dataset: NormalizedDataset | None, gaps: list[EvidenceGap],
     carbon_fields = [field for field, value in dataset.activity.model_dump().items() if value is not None]
     finance_fields = [field for field, value in dataset.financial.model_dump().items() if value is not None]
     carbon_gaps = [gap.message for gap in gaps if gap.affected_field in ActivityData.model_fields]
-    financial_missing = [field for field, value in dataset.financial.model_dump().items() if value is None]
+    financial_missing = [field for field in BASIC_FINANCIAL_FIELDS if getattr(dataset.financial, field) is None]
     carbon_reasons = ([f"Missing context: {', '.join(context_missing)}."] if context_missing else []) + carbon_gaps
     context_quality_uncertain = any(
         source.evidence_quality in {"UNKNOWN", "ESTIMATED_PROXY"}
@@ -245,8 +245,8 @@ def find_evidence_gaps(dataset: NormalizedDataset, modules: list[str]) -> list[E
                                         recommended_action="Supply applicable activity evidence or explicitly continue with a partial baseline."))
         gaps.extend(check_reporting_period_coverage(dataset))
     if set(modules) & {"financial_analysis", "transition_analysis"}:
-        for field, value in dataset.financial.model_dump().items():
-            if value is None:
+        for field in BASIC_FINANCIAL_FIELDS:
+            if getattr(dataset.financial, field) is None:
                 gaps.append(EvidenceGap(gap_type="MISSING_FINANCIAL", affected_field=field, severity="WARNING",
                                         message=f"{field} is missing; available financial values do not imply zero.",
                                         recommended_action=f"Upload financial evidence containing {field}, or explicitly continue incomplete."))

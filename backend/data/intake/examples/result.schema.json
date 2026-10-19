@@ -295,6 +295,57 @@
           ],
           "default": null,
           "title": "Minimum Cash Reserve"
+        },
+        "cogs": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cogs"
+        },
+        "operating_cash_flow": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operating Cash Flow"
+        },
+        "total_debt": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Debt"
+        },
+        "current_liabilities": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Liabilities"
         }
       },
       "title": "FinancialData",

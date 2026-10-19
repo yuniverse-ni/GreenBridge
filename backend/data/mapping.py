@@ -23,6 +23,12 @@ FIELD_ALIASES = {
     "annual_debt_service": ["debt repayment", "annual debt repayment", "existing annual debt service"],
     "capex_budget": ["capex", "capital expenditure", "max capex budget"],
     "minimum_cash_reserve": ["min cash reserve", "minimum reserve"],
+    "cogs": ["cost of goods sold", "cost of sales", "cost of revenue"],
+    "operating_cash_flow": ["OCF", "operating cashflow", "net operating cash flow", "cash flow from operations",
+                           "cash flow from operating activities", "net cash from operating activities",
+                           "net cash provided by operating activities", "net cash used in operating activities"],
+    "total_debt": ["total borrowings", "total interest bearing debt", "total outstanding debt"],
+    "current_liabilities": ["total current liabilities", "current liabilities total", "short term liabilities"],
     "electricity_kwh": ["electricity", "electricity usage", "power consumption", "energy consumed", "meter reading"],
     "diesel_litres": ["diesel", "diesel consumption", "fuel diesel"],
     "petrol_litres": ["petrol", "gasoline", "petrol consumption", "gasoline consumption"],
@@ -34,7 +40,8 @@ ALIASES.update({header_key(alias): field for field, aliases in FIELD_ALIASES.ite
 CANONICAL_KEYS = {header_key(field) for field in FIELD_GROUPS}
 EXPECTED_UNITS = {
     **dict.fromkeys(("revenue", "operating_expenses", "cash_balance", "annual_debt_service",
-                     "capex_budget", "minimum_cash_reserve"), "RM"),
+                     "capex_budget", "minimum_cash_reserve", "cogs", "operating_cash_flow",
+                     "total_debt", "current_liabilities"), "RM"),
     "floor_area_m2": "m2", "electricity_kwh": "kWh", "diesel_litres": "litres",
     "petrol_litres": "litres", "natural_gas_m3": "m3", "lpg_kg": "kg",
 }

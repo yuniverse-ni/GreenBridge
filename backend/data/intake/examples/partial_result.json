@@ -20,7 +20,11 @@
       "cash_balance": null,
       "annual_debt_service": null,
       "capex_budget": null,
-      "minimum_cash_reserve": null
+      "minimum_cash_reserve": null,
+      "cogs": null,
+      "operating_cash_flow": null,
+      "total_debt": null,
+      "current_liabilities": null
     },
     "activity": {
       "electricity_kwh": 266000.0,
