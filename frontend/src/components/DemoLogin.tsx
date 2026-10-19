@@ -143,22 +143,22 @@ export const DemoLogin: React.FC = () => {
           {mode === 'login' && (
             <div className="mb-4 p-3 bg-emerald-50/70 border border-emerald-200 rounded-lg">
               <span className="block text-[11px] font-bold text-emerald-900 mb-1.5">
-                ⚡ 1-Click Demo Accounts (Evaluator Presets):
+                Role
               </span>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => handleQuickFill('sme_owner')}
-                  className="flex-1 py-1 px-2 bg-white hover:bg-emerald-100/80 border border-emerald-300 rounded text-[11px] font-semibold text-emerald-900 transition text-center shadow-2xs"
+                  className="flex-1 py-1.5 px-2 bg-white hover:bg-emerald-100/80 border border-emerald-300 rounded text-xs font-semibold text-emerald-900 transition text-center shadow-2xs"
                 >
-                  👑 SME Owner
+                  SME Owner
                 </button>
                 <button
                   type="button"
                   onClick={() => handleQuickFill('finance_manager')}
-                  className="flex-1 py-1 px-2 bg-white hover:bg-emerald-100/80 border border-emerald-300 rounded text-[11px] font-semibold text-emerald-900 transition text-center shadow-2xs"
+                  className="flex-1 py-1.5 px-2 bg-white hover:bg-emerald-100/80 border border-emerald-300 rounded text-xs font-semibold text-emerald-900 transition text-center shadow-2xs"
                 >
-                  📊 Finance Mgr
+                  Finance Manager
                 </button>
               </div>
             </div>
