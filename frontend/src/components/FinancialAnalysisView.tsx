@@ -48,7 +48,6 @@ export function FinanceResultPanel({ result }: { result: FinanceResult }) {
       <h3>Supplied financial values</h3><dl className="gb-financial-facts">
         {Object.entries(input).map(([field, value]) => <Fact key={field} name={label(field)} value={financeAmount(value)} />)}
       </dl>
-      <pre>{JSON.stringify(result, null, 2)}</pre>
     </details>
   </>;
 }
