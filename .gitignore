@@ -14,6 +14,7 @@ htmlcov/
 *.egg-info/
 build/
 dist/
+*.db
 
 # Environment variables
 .env

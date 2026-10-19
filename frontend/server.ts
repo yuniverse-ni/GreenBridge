@@ -153,6 +153,35 @@ if (apiKey && apiKey !== 'MY_GEMINI_API_KEY') {
 app.use('/api/transition', createTransitionRouter(aiClient));
 app.use('/api/carbon', createCarbonRouter(aiClient));
 
+// Mount SQLite Auth router proxy to FastAPI backend
+const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || 'http://127.0.0.1:8000';
+app.use('/api/auth', async (req, res) => {
+  try {
+    const targetUrl = `${PYTHON_BACKEND_URL}/api/auth${req.path}`;
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (req.headers.authorization) {
+      headers['Authorization'] = req.headers.authorization as string;
+    }
+    const fetchOptions: RequestInit = {
+      method: req.method,
+      headers,
+    };
+    if (req.method !== 'GET' && req.method !== 'HEAD' && req.body && Object.keys(req.body).length > 0) {
+      fetchOptions.body = JSON.stringify(req.body);
+    }
+    const response = await fetch(targetUrl, fetchOptions);
+    const data = await response.json().catch(() => ({}));
+    return res.status(response.status).json(data);
+  } catch (err: any) {
+    return res.status(502).json({
+      success: false,
+      detail: `FastAPI Auth service unreachable at ${PYTHON_BACKEND_URL}: ${err.message}`
+    });
+  }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   const store = readStore();
