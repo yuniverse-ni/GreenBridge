@@ -862,59 +862,46 @@ USER QUESTION: "${message}"`;
     const store = readTransitionStore();
     try {
       const period = `FY${store.profile.reportingYear || 2024}`;
-      const rev = store.profile.annualRevenue > 0 ? store.profile.annualRevenue : 3200000;
-      const opex = store.profile.annualOperatingExpenses > 0 ? store.profile.annualOperatingExpenses : 680000;
-      const cash = store.profile.cashBalance > 0 ? store.profile.cashBalance : 312500;
-      const ads = store.profile.existingAnnualDebtService > 0 ? store.profile.existingAnnualDebtService : 38000;
-
-      const payload = req.body && req.body.income ? req.body : {
-        period,
-        currency: 'MYR',
-        income: {
-          period,
-          revenue: rev,
-          cogs: Math.round(rev * 0.55),
-          operating_expenses: opex,
-          depreciation_amortisation: Math.round(rev * 0.05),
-          finance_costs: ads,
-          income_tax_expense: 0
-        },
-        balance_sheet: {
-          period,
-          cash,
-          accounts_receivable: Math.round(rev * 45 / 365),
-          inventory: Math.round((rev * 0.55) * 45 / 365),
-          other_current_assets: 25000,
-          fixed_assets_at_cost: 1220000,
-          accumulated_depreciation: 415000,
-          other_assets: 0,
-          accounts_payable: Math.round((rev * 0.55) * 45 / 365),
-          short_term_debt: 70000,
-          long_term_debt: 275000,
-          capital: 500000,
-          retained_earnings: 927500
-        }
-      };
+      const rev = store.profile.annualRevenue || 3200000;
+      const opex = store.profile.annualOperatingExpenses || 680000;
+      const cash = store.profile.cashBalance || 312500;
+      const ads = store.profile.existingAnnualDebtService || 38000;
 
       const resp = await fetch(`${PYTHON_BACKEND_URL}/api/finance/statements/compute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          period,
+          currency: 'MYR',
+          income: {
+            period,
+            revenue: rev,
+            cogs: Math.round(rev * 0.55),
+            operating_expenses: opex,
+            depreciation_amortisation: Math.round(rev * 0.05),
+            finance_costs: ads,
+            income_tax_expense: 0
+          },
+          balance_sheet: {
+            period,
+            cash,
+            accounts_receivable: Math.round(rev * 45 / 365),
+            inventory: Math.round((rev * 0.55) * 45 / 365),
+            other_current_assets: 25000,
+            fixed_assets_at_cost: 1220000,
+            accumulated_depreciation: 415000,
+            other_assets: 0,
+            accounts_payable: Math.round((rev * 0.55) * 45 / 365),
+            short_term_debt: 70000,
+            long_term_debt: 275000,
+            capital: 500000,
+            retained_earnings: 927500
+          }
+        }),
         signal: AbortSignal.timeout(5000)
       });
       if (resp.ok) {
         const result = await resp.json();
-        // Append audit log to store
-        store.auditLogs.unshift({
-          id: `AUDIT-PY-${Date.now()}`,
-          timestamp: new Date().toISOString(),
-          userRole: 'sme_owner',
-          action: 'Python Financial Engine Computation',
-          details: `Computed financial statements & DSCR via FastAPI backend (${result.audit?.inputs_hash?.slice(0, 8) || 'verified'}).`,
-          category: 'CALCULATION',
-          evidenceRef: `${PYTHON_BACKEND_URL}/api/finance/statements/compute`
-        });
-        writeTransitionStore(store);
         return res.json({ success: true, engine: 'python-fastapi', result });
       }
       const err = await resp.text();
