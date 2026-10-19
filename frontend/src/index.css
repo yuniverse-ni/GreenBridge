@@ -502,6 +502,27 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* Financial health and transition affordability, with accounting detail on demand. */
 .gb-financial-analysis { min-height: calc(100dvh - 108px); display: flex; flex-direction: column; gap: 16px; }
+.gb-analysis-overview { overflow-y: auto; }
+.gb-overview-analysis { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.gb-overview-analysis > article { padding: 22px; }
+.gb-overview-analysis h2 { font-size: 14px; margin-bottom: 8px; }
+.gb-overview-analysis p, .gb-overview-next p { font-size: 12px; color: #728079; margin-bottom: 16px; }
+.gb-overview-next { margin-top: auto; padding-block: 16px; }
+.gb-analysis-period { color: #728079; font-size: 12px; }
+.gb-finance-sections { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.gb-finance-sections > section { padding: 18px; }
+.gb-finance-sections h2 { font-size: 14px; margin-bottom: 10px; }
+.gb-finance-sections .gb-financial-facts > div { padding-block: 9px; gap: 10px; }
+.gb-finance-sections .gb-financial-facts dd { flex-shrink: 0; font-size: 12px; }
+.gb-finance-note { margin-top: 14px; font-size: 11px; color: #728079; }
+.gb-finance-details { padding: 16px 18px; }
+.gb-finance-details h3 { margin-top: 18px; font-size: 13px; }
+.gb-finance-details ul { list-style: disc; padding-left: 18px; font-size: 12px; }
+.gb-finance-details pre { max-height: 320px; overflow: auto; font-size: 11px; margin-top: 16px; }
+.gb-finance-empty { padding: 24px; }
+.gb-finance-empty .gb-button { margin-top: 12px; }
+@media (max-width: 1050px) { .gb-finance-sections { grid-template-columns: 1fr; } }
+@media (max-width: 800px) { .gb-overview-analysis { grid-template-columns: 1fr; } }
 .gb-financial-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .gb-financial-kpis article { background: white; border: 1px solid #dce4dc; border-radius: 5px; padding: 20px 18px; min-width: 0; }
 .gb-financial-kpis h2 { font-size: 11px; font-weight: 500; color: #80917f; margin-bottom: 12px; }

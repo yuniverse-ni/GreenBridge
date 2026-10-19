@@ -18,10 +18,10 @@ export const TransitionHeader: React.FC<Props> = ({ collapsed, onToggle }) => {
     checkPythonEngine
   } = useTransition();
   const items = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'ingestion', label: 'Data & Documents', icon: Database },
-    { id: 'baseline', label: 'Carbon Analysis', icon: Leaf },
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'financials', label: 'Financial Analysis', icon: Coins },
+    { id: 'baseline', label: 'Carbon Analysis', icon: Leaf },
     { id: 'actions', label: 'Transition Actions', icon: Lightbulb },
     { id: 'copilot', label: 'AI Copilot', icon: MessageSquare },
     { id: 'transition-plan', label: 'Lender Pack', icon: FileCheck2 },

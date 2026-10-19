@@ -3,7 +3,7 @@ import { UploadCloud, FileText, RefreshCw, Download, ArrowRight, CheckCircle2, A
 import { useTransition } from '../context/TransitionContext';
 import { ROLE_LABELS } from '../auth/permissions';
 import {
-  EvidenceQuality, IntakeModule, IntakeResume, IntakeSession, MappingDecision,
+  EvidenceQuality, IntakeModule, IntakeResult, IntakeResume, IntakeSession, MappingDecision,
   forgetIntake, getIntake, intakeMayProceed, rememberIntake, resumeIntake, savedIntake, startIntake,
 } from '../services/intake';
 
@@ -11,6 +11,10 @@ const MODULES: Record<IntakeModule, string> = {
   financial_analysis: 'Financial', carbon_analysis: 'Carbon', transition_analysis: 'Transition',
 };
 const REQUESTED_MODULES = Object.keys(MODULES) as IntakeModule[];
+
+export function continueToOverview(result: IntakeResult, navigate: (page: 'overview') => void) {
+  if (intakeMayProceed(result)) navigate('overview');
+}
 const label = (field: string) => field.replace(/_/g, ' ');
 const display = (value: unknown) => value == null ? 'Missing — not supplied' : String(value);
 
@@ -220,10 +224,10 @@ export const DataIngestionView: React.FC = () => {
     {!session && uploadArea}
     {busy && <p role="status" className="gb-intake-processing"><RefreshCw size={16} className="inline animate-spin" /> Analysing your data…</p>}
     {session && <>
-      <IntakeResultPanel key={session.intake_id} session={session} busy={busy} onContinue={() => setActiveTab('copilot')}
+      <IntakeResultPanel key={session.intake_id} session={session} busy={busy} onContinue={() => continueToOverview(session.result, setActiveTab)}
         onAcceptPartial={async reason => {
           const next = await run(() => resumeIntake(session, { action: 'continue_incomplete', reason }));
-          if (next && intakeMayProceed(next.result)) setActiveTab('copilot');
+          if (next) continueToOverview(next.result, setActiveTab);
         }}>
       {uploadArea}
       <section className="gb-panel"><h3>Source files</h3><ul>{session.files.map(file => <li key={file.file_id}>

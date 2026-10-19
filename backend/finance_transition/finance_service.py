@@ -93,12 +93,30 @@ def _ratio(
     )
 
 
+def calculate_operating_profit(revenue: float | None, cogs: float | None,
+                               operating_expenses: float | None) -> tuple[float | None, float | None]:
+    """Shared statement arithmetic, preserving unknowns and operating losses."""
+    gross_profit = None if revenue is None or cogs is None else revenue - cogs
+    ebitda = None if gross_profit is None or operating_expenses is None else gross_profit - operating_expenses
+    return gross_profit, ebitda
+
+
+def calculate_known_ratio(numerator: float | None, denominator: float | None,
+                          fmt: Literal["percentage", "multiple", "days"],
+                          metric_name: str, formula: str) -> RatioValue:
+    """Use the statement engine's ratio rules without replacing missing inputs."""
+    if numerator is None or denominator is None:
+        return RatioValue(value=None, formatted="N/A", is_calculable=False,
+                          status="not_calculable", explanation=f"{metric_name} requires additional inputs.",
+                          formula=formula)
+    return _ratio(numerator, denominator, fmt, metric_name, formula)
+
+
 def calculate_income_statement(inputs: IncomeStatementInputs) -> IncomeStatement:
     revenue = max(0.0, inputs.revenue)
     cogs = max(0.0, inputs.cogs)
-    gross_profit = revenue - cogs
     operating_expenses = max(0.0, inputs.operating_expenses)
-    ebitda = gross_profit - operating_expenses
+    gross_profit, ebitda = calculate_operating_profit(revenue, cogs, operating_expenses)
     depreciation = max(0.0, inputs.depreciation_amortisation)
     ebit = ebitda - depreciation
     finance_costs = max(0.0, inputs.finance_costs)

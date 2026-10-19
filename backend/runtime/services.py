@@ -9,41 +9,14 @@ import os
 from typing import Callable
 
 from backend.agent.models import (
-    AnalysisRequest, CarbonToolResult, FinancialAnalysis, FinancialToolResult, TransitionOptionsResult,
+    CarbonToolResult, FinancialToolResult, TransitionOptionsResult,
 )
-
-
-def financial_snapshot(request: AnalysisRequest) -> FinancialToolResult:
-    """Adapt real supplied snapshots; do not substitute EBITDA or a budget for CFADS.
-
-The existing finance engine requires richer statements/cost inputs than intake
-publishes. Only these directly evidenced fields can currently cross this boundary.
-"""
-    dataset = request.intake.normalized_data
-    if dataset is None:
-        return FinancialToolResult(missing_context=["SERVICE_UNAVAILABLE:financial: no published financial snapshot"])
-    source = dataset.financial
-    if all(value is None for value in source.model_dump().values()):
-        return FinancialToolResult(missing_context=["SERVICE_UNAVAILABLE:financial: no supplied financial values"])
-    return FinancialToolResult(data=FinancialAnalysis(
-        company_id=request.intake.company.company_id,
-        reporting_year=request.intake.company.reporting_year,
-        source="backend.data.intake:published-financial-snapshot/v1",
-        cash_balance=source.cash_balance, capex_budget=source.capex_budget,
-        minimum_cash_reserve=source.minimum_cash_reserve,
-        existing_annual_debt_service=source.annual_debt_service,
-        annual_cash_available_for_debt_service=None, minimum_dscr=None,
-        evidence_limitations=[
-            "Supplied financial snapshot only; financial statement and CFADS analysis are unavailable for this intake schema.",
-            "Revenue minus expenses is not substituted for CFADS. Missing amounts remain unknown.",
-            *[gap.message for gap in request.intake.data_gaps],
-        ],
-    ))
+from backend.finance_transition.intake_finance import financial_analysis
 
 
 class ProductionAnalysisServices:
     """Stable DI boundary implementing backend.agent.tools.AnalysisServices."""
-    def __init__(self, *, carbon: Callable | None = None, financial: Callable | None = financial_snapshot,
+    def __init__(self, *, carbon: Callable | None = None, financial: Callable | None = financial_analysis,
                  transition: Callable | None = None):
         self.providers = {"carbon": carbon, "financial": financial, "transition": transition}
 
@@ -95,4 +68,4 @@ def _configured(name, default=None):
 
 def build_production_services() -> ProductionAnalysisServices:
     return ProductionAnalysisServices(carbon=_configured("carbon"),
-        financial=_configured("financial", financial_snapshot), transition=_configured("transition"))
+        financial=_configured("financial", financial_analysis), transition=_configured("transition"))

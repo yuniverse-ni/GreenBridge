@@ -186,6 +186,7 @@ export const TransitionCopilotView: React.FC = () => {
       {busy && <p role="status" className="gb-copilot-progress"><RefreshCw size={16} className="inline animate-spin" /> Analysing your options…</p>}
       {run ? <AgentResultPanel run={run} /> : <div className="gb-copilot-empty"><span className="gb-copilot-eyebrow">YOUR TRANSITION PLAN</span><h2>A clearer view of your options</h2>
         <p>Tell us your objective to review projected carbon reduction, investment, savings and financing considerations in one place.</p></div>}
+      {run?.result.status === 'ACCEPTED' && <button className="gb-button" onClick={() => setActiveTab('transition-plan')}>Continue to Lender Pack <ArrowRight size={14} /></button>}
       {run?.awaiting && <section className="gb-copilot-review"><h3>{run.awaiting === 'human_review' ? 'Review your plan' : 'Complete the next step'}</h3>
         <label className="gb-copilot-label" htmlFor="copilot-decision">Add a note to record your decision</label>
         <textarea id="copilot-decision" rows={2} disabled={busy} value={reason} onChange={e => setReason(e.target.value)} />

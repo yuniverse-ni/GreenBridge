@@ -5,7 +5,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
-from backend.data.intake.models import DataIntakeResult
+from backend.data.intake.models import DataIntakeResult, ModuleReadiness, ValueEvidence
+from backend.data.models import FinancialData, Provenance
 
 Amount = Annotated[float, Field(ge=0)]
 Fraction = Annotated[float, Field(ge=0, le=1)]
@@ -86,14 +87,40 @@ class CarbonAnalysis(ServiceFacts):
         return self
 
 
-class FinancialAnalysis(ServiceFacts):
+class FinanceMetric(Contract):
+    value: float | None = None
+    formatted: str
+    is_calculable: bool
+    status: Literal["healthy", "caution", "warning", "neutral", "not_calculable"]
+    explanation: str
+    formula: str
+
+
+class FinanceResult(ServiceFacts):
+    """One production finance contract; legacy graph fields remain compatible.
+
+    inputs preserves all canonical supplied values. Metrics are calculated only
+    from known inputs; EBITDA coverage is never represented as CFADS/DSCR.
+    """
     currency: Literal["MYR"] = "MYR"
+    inputs: FinancialData = Field(default_factory=FinancialData)
+    gross_profit: float | None = None
+    ebitda: float | None = None
+    cash_above_reserve: float | None = None
+    metrics: dict[str, FinanceMetric] = Field(default_factory=dict)
+    financial_provenance: dict[str, list[Provenance]] = Field(default_factory=dict)
+    evidence: list[ValueEvidence] = Field(default_factory=list)
+    readiness: ModuleReadiness | None = None
     cash_balance: Amount | None = None
     capex_budget: Amount | None = None
     minimum_cash_reserve: Amount | None = None
     annual_cash_available_for_debt_service: float | None = None
     existing_annual_debt_service: Amount | None = None
     minimum_dscr: Amount | None = None
+
+
+# Compatibility name used by the existing graph, tools and service providers.
+FinancialAnalysis = FinanceResult
 
 
 class TransitionAction(Contract):
