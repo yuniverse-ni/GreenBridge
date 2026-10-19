@@ -15,7 +15,12 @@ export const DemoAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     sessionStorage.setItem(SESSION_KEY, role);
     setSession({ role, name: ROLE_LABELS[role] });
   };
-  const signOut = () => { sessionStorage.removeItem(SESSION_KEY); setSession(null); window.history.replaceState(null, '', window.location.pathname + window.location.search); };
+  const signOut = () => {
+    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem('greenbridge_login_terms_agreed');
+    setSession(null);
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  };
   return <DemoAuthContext.Provider value={{ session, signIn, signOut }}>{children}</DemoAuthContext.Provider>;
 };
 export function useDemoAuth() { const auth = useContext(DemoAuthContext); if (!auth) throw new Error('DemoAuthProvider required'); return auth; }
