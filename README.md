@@ -8,7 +8,7 @@
 [![SQLite](https://img.shields.io/badge/SQLite-3-003B57.svg?logo=sqlite&logoColor=white)](https://sqlite.org)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-> **TransitionAI / GreenBridge** empowers Small and Medium-Sized Enterprises (SMEs) to organize fragmented operational and financial records, establish verified carbon baselines, model financially viable decarbonisation pathways, and unlock concessionary transition financing under the **Bank Negara Malaysia (BNM) Low Carbon Transition Facility (LCTF)** and **Green Technology Financing Scheme (GTFS 4.0)**.
+> **GreenBridge** empowers Small and Medium-Sized Enterprises (SMEs) to organize fragmented operational and financial records, establish verified carbon baselines, model financially viable decarbonisation pathways, and unlock concessionary transition financing under the **Bank Negara Malaysia (BNM) Low Carbon Transition Facility (LCTF)** and **Green Technology Financing Scheme (GTFS 4.0)**.
 
 ---
 
