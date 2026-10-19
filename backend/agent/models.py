@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validat
 
 from backend.data.intake.models import DataIntakeResult, ModuleReadiness, ValueEvidence
 from backend.data.models import FinancialData, Provenance
+from backend.carbon.carbon_models import CarbonSource, CarbonIntensity, CarbonConfidence
 
 Amount = Annotated[float, Field(ge=0)]
 Fraction = Annotated[float, Field(ge=0, le=1)]
@@ -75,16 +76,34 @@ class ImpactGroup(Contract):
     annual_cost: Amount | None = None
 
 
-class CarbonAnalysis(ServiceFacts):
+class CarbonResult(ServiceFacts):
     total_tco2e: Amount | None = None
+    scope1_emissions: Amount | None = None
+    scope2_emissions: Amount | None = None
+    total_emissions: Amount | None = None
+    known_emissions: Amount | None = None
+    emissions_unit: Literal["tCO2e"] = "tCO2e"
+    emissions_by_source: dict[str, CarbonSource] = Field(default_factory=dict)
+    carbon_intensity: CarbonIntensity = Field(default_factory=CarbonIntensity)
+    provenance: dict[str, list[Provenance]] = Field(default_factory=dict)
+    evidence: list[ValueEvidence] = Field(default_factory=list)
+    confidence: CarbonConfidence = Field(default_factory=CarbonConfidence)
+    missing_data: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    readiness: ModuleReadiness | None = None
     impact_groups: dict[str, ImpactGroup] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def disjoint_allocation(self):
+        if self.total_emissions is not None and self.total_emissions != self.total_tco2e:
+            raise ValueError("Carbon total must match the graph baseline")
         known = [group.annual_emissions_tco2e for group in self.impact_groups.values() if group.annual_emissions_tco2e is not None]
         if self.total_tco2e is not None and sum(known) > self.total_tco2e + 1e-8:
             raise ValueError("Disjoint impact groups exceed the total carbon baseline")
         return self
+
+
+CarbonAnalysis = CarbonResult
 
 
 class FinanceMetric(Contract):

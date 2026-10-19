@@ -15,6 +15,7 @@ from backend.data.intake.router import router as intake_router, intake_registry
 from backend.agent.router import create_agent_router
 from backend.finance_transition.intake_router import create_intake_finance_router
 from backend.runtime.services import build_production_services
+from backend.carbon.router import create_carbon_router
 
 app = FastAPI(
     title="TransitionAI — Finance & Transition Backend",
@@ -49,3 +50,4 @@ app.include_router(intake_router)
 analysis_services = build_production_services()
 app.include_router(create_agent_router(intake_registry, services=analysis_services))
 app.include_router(create_intake_finance_router(intake_registry, services=analysis_services))
+app.include_router(create_carbon_router(intake_registry, services=analysis_services))

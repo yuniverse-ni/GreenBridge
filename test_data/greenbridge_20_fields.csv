@@ -1,0 +1,2 @@
+company_id,company_name,reporting_year,employees,floor_area_m2,revenue,operating_expenses,cash_balance,annual_debt_service,capex_budget,minimum_cash_reserve,cogs,operating_cash_flow,total_debt,current_liabilities,electricity_kwh,diesel_litres,petrol_litres,natural_gas_m3,lpg_kg,reporting_period
+EXACT,,2024,0,100,10000,7000,2000,100,1000,500,2300,-125,0,800,100,0,0,0,0,2024

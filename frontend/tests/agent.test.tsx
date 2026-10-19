@@ -52,7 +52,7 @@ test('Phase 1 intake → real MainAgent services/interrupts/trace → copilot re
     assert.equal(plan.result.status, 'NEEDS_CONTEXT');
     assert.equal(plan.awaiting, 'context');
     assert.equal(plan.result.recommendation, null);
-    assert.equal(plan.service_status.get_carbon_analysis, 'SERVICE_UNAVAILABLE');
+    assert.equal(plan.service_status.get_carbon_analysis, 'AVAILABLE');
     assert.equal(plan.service_status.get_transition_options, 'SERVICE_UNAVAILABLE');
     assert.equal(plan.service_status.get_financial_analysis, 'AVAILABLE');
     const facts = plan.result.tool_results.get_financial_analysis.data;
@@ -61,10 +61,10 @@ test('Phase 1 intake → real MainAgent services/interrupts/trace → copilot re
     assert.equal(facts?.origin, 'SERVICE');
     const markup = renderToStaticMarkup(<AgentResultPanel run={plan} />);
     assert.match(markup, /LangGraph MainAgent/);
-    assert.match(markup, /SERVICE_UNAVAILABLE:carbon/);
+    assert.match(markup, /SERVICE_UNAVAILABLE:transition/);
     assert.match(markup, /TOOL_CALLED/);
     const primary = markup.split('<details')[0];
-    assert.match(primary, /Carbon analysis is required before a transition plan can be recommended/);
+    assert.match(primary, /Transition options are not yet available/);
     assert.doesNotMatch(primary, /SERVICE_UNAVAILABLE|LangGraph|MainAgent|deterministic|TOOL_CALLED/);
     assert.match(markup, /<details[^>]*><summary>View analysis details<\/summary>/);
     assert.doesNotMatch(markup, /leads your selected actions|Recommended pathway/);
@@ -108,7 +108,7 @@ test('Phase 1 intake → real MainAgent services/interrupts/trace → copilot re
     assert.equal(denied.result.status, 'NEEDS_CONTEXT');
     assert.deepEqual(denied.result.tool_results, {});
     assert.ok(Object.values(denied.service_status).every(status => status === 'NOT_CALLED'));
-    console.log('Phase 2 live runtime: Phase 1 checkpoint → MainAgent → readiness/tool trace → explicit Carbon/Transition SERVICE_UNAVAILABLE. Financial snapshot → real LangGraph human interrupt → ACCEPT/REJECT. PARTIAL resume and BLOCKED gating verified. No fixture services installed.');
+    console.log('Live runtime: Phase 1 checkpoint → MainAgent → real Carbon and Finance services; Transition catalog explicitly unavailable. LangGraph human review, PARTIAL resume and BLOCKED gating verified. No fixture services installed.');
   } finally {
     globalThis.fetch = nativeFetch;
     if (child.exitCode === null) {

@@ -2,12 +2,14 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { once } from 'node:events';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { IntakeResultPanel, readinessIssues } from '../src/components/DataIngestionView';
 import { getIntake, intakeMayProceed, resumeIntake, startIntake } from '../src/services/intake';
+import { intakeTechnicalSummary } from '../src/utils/intakePresentation';
 
 // Run the actual Python app on an isolated port, then exercise the same API
 // client and result component used by Data & Documents. No provider credentials.
@@ -98,7 +100,56 @@ test('original upload → real DataIntakeAgent → normalized/readiness result �
     assert.equal(intakeMayProceed(partial.result), true);
     const partialMarkup = renderToStaticMarkup(<IntakeResultPanel session={partial} />);
     assert.match(partialMarkup, /Missing — not supplied/);
-    assert.match(partialMarkup, /PARTIAL explicitly accepted/);
+    assert.match(partialMarkup, /Accepted with limitations/);
+    assert.doesNotMatch(partialMarkup, /PARTIAL explicitly accepted/);
+
+    // Use all current canonical fields with undeclared source quality and no
+    // activity periods to exercise the real repeated readiness warnings.
+    const demoRows = readFileSync(new URL('../../test_data/greenbridge_20_fields.csv', import.meta.url), 'utf8').trim().split(/\r?\n/);
+    const periodColumn = demoRows[0].split(',').indexOf('reporting_period');
+    const withoutPeriods = demoRows.map(row => row.split(',').filter((_, index) => index !== periodColumn).join(',')).join('\n');
+    let summarySession = await startIntake([new File([withoutPeriods], 'summary.csv')], 'Integration Reviewer',
+      ['carbon_analysis', 'financial_analysis', 'transition_analysis'], { quality: 'UNKNOWN', basis: '' });
+    summarySession = await resumeIntake(summarySession, { action: 'continue_incomplete', reason: 'Accept period and source-quality limitations for review' });
+    const originalSummaryResult = JSON.stringify(summarySession.result);
+    const summary = intakeTechnicalSummary(summarySession.result);
+    const carbon = summary.modules.find(module => module.module === 'carbon_analysis')!;
+    const financial = summary.modules.find(module => module.module === 'financial_analysis')!;
+    assert.deepEqual(carbon.groups.find(group => group.title === 'Reporting period')?.messages, ['Missing for 5 activity records.']);
+    assert.deepEqual(carbon.groups.find(group => group.title === 'Evidence quality')?.messages, ['Undeclared for 5 carbon fields.']);
+    assert.deepEqual(financial.groups.find(group => group.title === 'Evidence quality')?.messages, ['Undeclared for 10 financial fields.']);
+    const summaryMarkup = renderToStaticMarkup(<IntakeResultPanel session={summarySession} />);
+    const mainTechnical = summaryMarkup.split('<summary>Field-level validation, data &amp; provenance</summary>')[0];
+    assert.match(mainTechnical, /Accepted with limitations/);
+    assert.match(mainTechnical, /Depends on available Carbon and Finance data/);
+    assert.doesNotMatch(mainTechnical, /Evidence gaps|Source quality for|Activity evidence has no reporting period|electricity_kwh|PARTIAL explicitly accepted|Extracted data/);
+    assert.equal((mainTechnical.match(/Undeclared for 5 carbon fields/g) || []).length, 1);
+    assert.equal((mainTechnical.match(/Undeclared for 10 financial fields/g) || []).length, 1);
+    assert.match(summaryMarkup, /Source quality for electricity_kwh/);
+    assert.match(summaryMarkup, /Field-level evidence checks/);
+    assert.match(summaryMarkup, /<details><summary>Field-level validation, data &amp; provenance<\/summary>/);
+    assert.equal(JSON.stringify(summarySession.result), originalSummaryResult);
+
+    const repeated = structuredClone(summarySession.result);
+    repeated.data_gaps.push(...repeated.data_gaps);
+    assert.deepEqual(intakeTechnicalSummary(repeated).modules, summary.modules);
+    repeated.readiness.financial_analysis.reasons.push('Financial evidence failed reconciliation.');
+    repeated.errors.push({ stage: 'parse', file_id: 'one', message: 'Invalid calendar date.' },
+      { stage: 'parse', file_id: 'one', message: 'Invalid calendar date.' },
+      { stage: 'parse', file_id: 'one', message: 'Unsupported currency.' });
+    const distinct = intakeTechnicalSummary(repeated);
+    assert.deepEqual(distinct.errors, ['parse: Invalid calendar date.', 'parse: Unsupported currency.']);
+    assert.ok(distinct.shared.some(group => group.messages.includes('Financial evidence failed reconciliation.')));
+    repeated.data_gaps.push(...['electricity_kwh', 'diesel_litres'].map(field => ({
+      gap_type: 'UNIT_REVIEW', affected_field: field, severity: 'ERROR', message: 'The input unit needs confirmation.', recommended_action: 'Confirm unit',
+    })));
+    assert.ok(intakeTechnicalSummary(repeated).shared.some(group => group.messages.includes('ERROR: The input unit needs confirmation. (2 affected fields)')));
+    const mixedQuality = structuredClone(summarySession.result);
+    const dieselEvidence = mixedQuality.evidence.find(item => item.field === 'diesel_litres')!;
+    dieselEvidence.evidence_quality = 'ESTIMATED_PROXY';
+    (mixedQuality.normalized_data!.provenance.diesel_litres[0] as { evidence_quality: string }).evidence_quality = 'ESTIMATED_PROXY';
+    assert.deepEqual(intakeTechnicalSummary(mixedQuality).modules[0].groups.find(group => group.title === 'Evidence quality')?.messages,
+      ['Undeclared for 4 carbon fields.', 'Estimated / proxy evidence for 1 carbon field.']);
 
     let mapped = await startIntake([new File(['company_id,reporting_year,Total Power Used,period\nTEST,2024,2,2024'], 'mapping.csv')],
       'Integration Reviewer', ['carbon_analysis'], declaration);

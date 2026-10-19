@@ -63,9 +63,10 @@ def test_production_plan_uses_server_intake_and_reports_unavailable(monkeypatch)
         assert run["result"]["status"] == "NEEDS_CONTEXT"
         assert run["awaiting"] == "context" and run["interrupts"]
         assert run["result"]["recommendation"] is None
-        assert run["service_status"]["get_carbon_analysis"] == "SERVICE_UNAVAILABLE"
+        assert run["service_status"]["get_carbon_analysis"] == "AVAILABLE"
         assert run["service_status"]["get_transition_options"] == "SERVICE_UNAVAILABLE"
-        assert any("SERVICE_UNAVAILABLE:carbon:" in text for text in run["result"]["missing_context"])
+        assert not any("SERVICE_UNAVAILABLE:carbon:" in text for text in run["result"]["missing_context"])
+        assert run["result"]["tool_results"]["get_carbon_analysis"]["data"]["total_emissions"] == .0584
         financial = run["result"]["tool_results"]["get_financial_analysis"]["data"]
         assert financial["cash_balance"] == 2000
         assert financial["annual_cash_available_for_debt_service"] is None

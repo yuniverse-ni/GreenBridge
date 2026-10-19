@@ -12,11 +12,12 @@ from backend.agent.models import (
     CarbonToolResult, FinancialToolResult, TransitionOptionsResult,
 )
 from backend.finance_transition.intake_finance import financial_analysis
+from backend.carbon.carbon_service import get_carbon_analysis
 
 
 class ProductionAnalysisServices:
     """Stable DI boundary implementing backend.agent.tools.AnalysisServices."""
-    def __init__(self, *, carbon: Callable | None = None, financial: Callable | None = financial_analysis,
+    def __init__(self, *, carbon: Callable | None = get_carbon_analysis, financial: Callable | None = financial_analysis,
                  transition: Callable | None = None):
         self.providers = {"carbon": carbon, "financial": financial, "transition": transition}
 
@@ -67,5 +68,5 @@ def _configured(name, default=None):
 
 
 def build_production_services() -> ProductionAnalysisServices:
-    return ProductionAnalysisServices(carbon=_configured("carbon"),
+    return ProductionAnalysisServices(carbon=_configured("carbon", get_carbon_analysis),
         financial=_configured("financial", financial_analysis), transition=_configured("transition"))

@@ -5,9 +5,10 @@ import { useFinanceAnalysis } from '../hooks/useFinanceAnalysis';
 import { FinanceResult } from '../services/finance';
 import { TransitionTab } from '../types/transition';
 import { financeAmount, financeMetric } from '../utils/financePresentation';
+import { CarbonResult, carbonNumber, useCarbonAnalysis } from '../services/carbon';
 
-export function OverviewSummary({ result, onNavigate }: {
-  result: FinanceResult | null; onNavigate?: (page: TransitionTab) => void;
+export function OverviewSummary({ result, carbon, onNavigate }: {
+  result: FinanceResult | null; carbon?: CarbonResult | null; onNavigate?: (page: TransitionTab) => void;
 }) {
   return <>
     <div className="gb-metric-strip" aria-label="Financial summary">
@@ -22,8 +23,11 @@ export function OverviewSummary({ result, onNavigate }: {
         {result?.readiness.partial_accepted && <p>Some information is incomplete. Review the accepted limitations.</p>}
         <button className="gb-button gb-primary" onClick={() => onNavigate?.('financials')}>Review financial analysis <ArrowRight size={14} /></button>
       </article>
-      <article className="gb-panel"><h2>Carbon analysis</h2><p>Carbon analysis not available yet.</p>
-        <button className="gb-text-button" onClick={() => onNavigate?.('baseline')}>View carbon analysis <ArrowRight size={14} /></button>
+      <article className="gb-panel"><h2>Carbon analysis</h2><p>{carbon
+        ? carbon.total_emissions == null ? 'Some activity is missing. Review your partial Carbon analysis.'
+          : `${carbonNumber(carbon.total_emissions)} tCO₂e · ${carbon.reporting_year}`
+        : 'Carbon analysis not available yet.'}</p>
+        <button className="gb-button gb-primary" onClick={() => onNavigate?.('baseline')}>Review carbon analysis <ArrowRight size={14} /></button>
       </article>
     </div>
     <div className="gb-overview-next"><p>Review your analysis, then explore transition actions and ask AI Copilot for recommendations.</p>
@@ -34,12 +38,13 @@ export function OverviewSummary({ result, onNavigate }: {
 export const OverviewView: React.FC = () => {
   const { setActiveTab } = useTransition();
   const { result, message, busy, refresh } = useFinanceAnalysis();
+  const carbon = useCarbonAnalysis();
   return <section className="gb-dashboard gb-analysis-overview" aria-label="Overview" aria-busy={busy}>
     <div className="gb-page-heading"><div><h1>Overview</h1><p>Review your business position before planning your transition.</p></div>
-      <div className="gb-header-actions"><button className="gb-button" disabled={busy} onClick={refresh}>Refresh analysis</button>
+      <div className="gb-header-actions"><button className="gb-button" disabled={busy || carbon.busy} onClick={() => { refresh(); carbon.refresh(); }}>Refresh analysis</button>
         <button className="gb-button" onClick={() => setActiveTab('ingestion')}><UploadCloud size={14} /> Data &amp; Documents</button></div></div>
     {busy && <p role="status">Loading your analysis…</p>}
     {message && <p role="status">{message}</p>}
-    {!busy && <OverviewSummary result={result} onNavigate={setActiveTab} />}
+    {!busy && <OverviewSummary result={result} carbon={carbon.result} onNavigate={setActiveTab} />}
   </section>;
 };

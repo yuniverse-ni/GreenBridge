@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { UploadCloud, FileText, RefreshCw, Download, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useTransition } from '../context/TransitionContext';
 import { ROLE_LABELS } from '../auth/permissions';
+import { intakeTechnicalSummary } from '../utils/intakePresentation';
 import {
   EvidenceQuality, IntakeModule, IntakeResult, IntakeResume, IntakeSession, MappingDecision,
   forgetIntake, getIntake, intakeMayProceed, rememberIntake, resumeIntake, savedIntake, startIntake,
@@ -58,6 +59,7 @@ export function IntakeResultPanel({ session, children, busy = false, onContinue,
 }) {
   const { result } = session;
   const dataset = result.normalized_data;
+  const technical = intakeTechnicalSummary(result);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [acceptanceOpen, setAcceptanceOpen] = useState(false);
   const [acceptanceReason, setAcceptanceReason] = useState('');
@@ -94,13 +96,20 @@ export function IntakeResultPanel({ session, children, busy = false, onContinue,
         <button className="gb-button" disabled={busy} onClick={() => setAcceptanceOpen(false)}>Back</button></div>
     </section>}
     <details className="gb-intake-details"><summary>Technical details</summary><div className="gb-intake-detail-content">
-    {Object.entries(MODULES).map(([module, name]) => <section key={module}><h3>{name} readiness: {result.readiness[module as IntakeModule].status}</h3>
-      {result.readiness[module as IntakeModule].partial_accepted && <p>PARTIAL explicitly accepted</p>}
+    <div className="gb-intake-technical-summary">{technical.modules.map(({ module, groups }) => <section key={module}>
+      <h3>{MODULES[module]} readiness: {result.readiness[module].status}</h3>
+      {result.readiness[module].partial_accepted && <p>Accepted with limitations</p>}
+      {groups.map(group => <div key={group.title}><h4>{group.title}</h4><ul>{group.messages.map(message => <li key={message}>{message}</li>)}</ul></div>)}
+    </section>)}</div>
+    {technical.shared.map((group, i) => <section key={i}><h3>{group.title}</h3><ul>{group.messages.map(message => <li key={message}>{message}</li>)}</ul></section>)}
+    {technical.errors.length > 0 && <div role="alert"><h3>Validation issues</h3><ul>{technical.errors.map(error => <li key={error}>{error}</li>)}</ul></div>}
+    {technical.notices.map(notice => <p key={notice}>{notice}</p>)}
+    <details><summary>Field-level validation, data &amp; provenance</summary><div className="gb-intake-detail-content">
+    {Object.entries(MODULES).map(([module, name]) => <section key={module}><h3>{name} validation</h3>
       <ul>{result.readiness[module as IntakeModule].reasons.map((reason, index) => <li key={index}>{reason}</li>)}</ul></section>)}
-    {result.errors.length > 0 && <div role="alert"><h3>Validation issues</h3><ul>{result.errors.map((error, i) => <li key={i}>{error.stage}: {error.message}</li>)}</ul></div>}
-    {result.data_gaps.length > 0 && <section><h3>Evidence gaps ({result.data_gaps.length})</h3>
-      <ul>{result.data_gaps.map((gap, i) => <li key={i}><strong>{gap.severity}: </strong>{gap.message} {gap.recommended_action}</li>)}</ul></section>}
-    {result.notices.map((notice, i) => <p key={i}>{notice}</p>)}
+    {result.errors.length > 0 && <section><h3>Exact validation errors</h3><ul>{result.errors.map((error, i) => <li key={i}>{error.stage}: {error.message}</li>)}</ul></section>}
+    {result.data_gaps.length > 0 && <section><h3>Field-level evidence checks</h3><ul>{result.data_gaps.map((gap, i) => <li key={i}>
+      {gap.affected_field && <strong>{gap.affected_field}: </strong>}{gap.severity}: {gap.message} {gap.recommended_action}</li>)}</ul></section>}
     {dataset ? <>
       <h3>Extracted data</h3><p>Missing values are marked below. Evidence quality is based on the information supplied.</p>
       <div className="gb-table-scroll"><table><thead><tr><th>Group</th><th>Field</th><th>Value</th><th>Normalized unit</th></tr></thead><tbody>
@@ -120,6 +129,7 @@ export function IntakeResultPanel({ session, children, busy = false, onContinue,
         href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(result, null, 2))}`}><Download size={14} /> Download full result &amp; provenance</a>
     </> : <p>Data will be available once the required checks and confirmations are complete.</p>}
     {children}
+    </div></details>
     </div></details>
   </section>;
 }

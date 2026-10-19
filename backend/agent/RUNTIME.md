@@ -37,29 +37,42 @@ def get_financial_analysis(request: AnalysisRequest) -> FinancialToolResult: ...
 def get_transition_options(request: AnalysisRequest) -> TransitionOptionsResult: ...
 ```
 
-A Carbon teammate can implement an adapter anywhere without changing the graph
-or importing the runtime from Carbon. Configure its server-owned import path:
+Production defaults use the real Carbon and Finance services. Optional deployment
+providers can override the stable boundary without changing the graph:
 
 ```text
-GREENBRIDGE_CARBON_SERVICE=backend.carbon.agent_adapter:get_carbon_analysis
+GREENBRIDGE_CARBON_SERVICE=backend.carbon.carbon_service:get_carbon_analysis
 GREENBRIDGE_FINANCIAL_SERVICE=your_finance_adapter:get_financial_analysis
 GREENBRIDGE_TRANSITION_SERVICE=your_catalog_adapter:get_transition_options
 ```
 
 These are optional module:function callables loaded at application startup. The
-Carbon example is an interface example, not a file supplied by this phase. Restart
-the API after configuring providers. No API request can choose an import path.
+Carbon provider is implemented and also selected when no override is configured.
+Restart the API after configuring providers. No API request can choose an import path.
 Return SERVICE-origin, company/year-scoped results. TEST_DOUBLE values, invalid
 responses and provider failures fail closed as SERVICE_UNAVAILABLE. AgentTools
 continues enforcing typed validation, readiness and financial snapshot consistency.
 
 Current default capabilities:
 
-- Carbon: SERVICE_UNAVAILABLE; its dedicated implementation is currently empty.
-- Financial: real published intake snapshots (cash, budget, reserve and annual
-  debt service). Nulls and zero are preserved. CFADS and minimum DSCR are unknown.
-  This is **not** complete statement/CFADS analysis. The existing finance engine
-  needs richer inputs; this adapter never fabricates those or treats EBITDA as CFADS.
+- Carbon: `backend.carbon.carbon_service.get_carbon_analysis` returns the same
+  `CarbonResult` (`CarbonAnalysis` compatibility name) to MainAgent and the UI's
+  `GET /api/carbon/intakes/{intake_id}/result` capability-scoped endpoint. It uses
+  only server-owned DataIntakeResult, with the existing readiness gate. The five
+  existing TypeScript coefficients are ported into the Python registry. Activity
+  is multiplied once; the already normalized totals are not added to evidence.
+  Scope 1 is the four fuels, Scope 2 is electricity only. No generic category
+  factor exists. Missing sources and incomplete scope/overall totals stay null;
+  `known_emissions` explicitly reports only the supplied-source subtotal. Genuine
+  zero remains zero. Floor-area intensity uses the uploaded positive denominator.
+  Original provenance, evidence quality and extraction/mapping confidence are
+  preserved; no synthetic verification score is generated. Region is absent from
+  intake, so the existing Peninsular Malaysia factor policy and its 2023 vintage
+  are disclosed as assumptions/warnings. References are repository declarations,
+  not independently verified factor publications. No LLM chooses numeric factors.
+- Financial: the real intake Finance engine returns FinanceResult, including
+  supplied financial fields and calculable profit/coverage/liquidity metrics.
+  CFADS and loan capacity remain unknown without their additional sourced inputs.
 - Transition: SERVICE_UNAVAILABLE. The legacy generator needs cost/factor inputs
   absent from Phase 1 and lacks the sourced disjoint impact-group catalog contract.
   It is not called with benchmark data or converted to invented reduction fractions.
@@ -69,6 +82,18 @@ An unavailable provider returns a typed tool result with a
 pauses at request_context; the frontend shows that result rather than a fallback
 pathway. AVAILABLE in the transport means a typed service result exists, not that
 every financial metric is known or independently verified.
+
+Carbon Analysis and Overview use the backend result, not the TypeScript baseline,
+stored Express emissions, editable profile or legacy Python finance adapter.
+Legacy TypeScript/Python routines remain for the out-of-scope Transition/demo
+routes; they are not authoritative Carbon sources for this flow. Transition
+calculations and graph architecture are unchanged.
+
+Reproduce the 20 canonical field fixture with `test_data/greenbridge_20_fields.csv`
+(copied from the existing exact-header regression, plus reporting_period). Expected
+Scope 1: 0; Scope 2/total: 0.0584 tCO2e; area intensity: 0.584 kgCO2e/m2. Run
+`python -m pytest backend/tests/test_carbon_integration.py -q` and, from frontend,
+`node --import tsx --test tests/carbon.test.tsx` for real HTTP/React/MainAgent equality.
 
 ## Decision authority and lifecycle
 
