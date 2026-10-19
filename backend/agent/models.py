@@ -1,9 +1,10 @@
 """Main-agent contracts. Service facts, projections and narration stay separate."""
 
 from datetime import datetime
+from math import isclose
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationInfo, field_validator, model_validator
 
 from backend.data.intake.models import DataIntakeResult
 
@@ -74,16 +75,121 @@ class ImpactGroup(Contract):
     annual_cost: Amount | None = None
 
 
-class CarbonAnalysis(ServiceFacts):
+class CarbonEvidence(Contract):
+    source_file: str
+    row: int
+    sheet: str | None = None
+    reporting_period: str | None = None
+    original_column: str
+    original_metric: str | None = None
+    original_value: JsonValue
+    original_unit: str | None = None
+    normalized_unit: str | None = None
+    evidence_quality: Literal["DIRECT_MEASURED", "INVOICE_DERIVED", "ESTIMATED_PROXY", "UNKNOWN"]
+    evidence_quality_basis: str | None = None
+    mapping_confidence: Fraction | None = None
+    semantic_confidence: Fraction | None = None
+    confirmation_status: Literal["ACCEPTED", "CONFIRMED"]
+
+
+class CarbonSourceResult(Contract):
+    source: str
+    scope: Literal["Scope 1", "Scope 2"]
+    reporting_year: int = Field(ge=1900, le=9999, strict=True)
+    activity_value: Amount | None = None
+    activity_unit: str
+    factor_kgco2e_per_unit: Amount | None = None
+    factor_unit: str | None = None
+    factor_source: str | None = None
+    factor_version: str | None = None
+    factor_region: str | None = None
+    emissions_kgco2e: Amount | None = None
+    emissions_tco2e: Amount | None = None
+    share_pct: float | None = Field(default=None, ge=0, le=100)
+    evidence: list[CarbonEvidence] = Field(default_factory=list)
+
+
+class CarbonFactorProvenance(Contract):
+    source: str
+    scope: Literal["Scope 1", "Scope 2"]
+    factor_kgco2e_per_unit: Amount
+    factor_unit: str
+    factor_source: str
+    factor_version: str
+    factor_region: str | None = None
+
+
+class CarbonIntensity(Contract):
+    value: float = Field(ge=0)
+    unit: Literal["kgCO2e/m2"] = "kgCO2e/m2"
+    floor_area_m2: float = Field(gt=0)
+
+
+class CarbonDataConfidence(Contract):
+    activity_source_count: int = Field(default=0, ge=0)
+    evidenced_source_count: int = Field(default=0, ge=0)
+    evidence_record_count: int = Field(default=0, ge=0)
+    evidence_quality_counts: dict[str, int] = Field(default_factory=dict)
+
+
+class CarbonResult(ServiceFacts):
+    scope1_emissions_tco2e: Amount | None = None
+    scope2_emissions_tco2e: Amount | None = None
     total_tco2e: Amount | None = None
+    activity_data_complete: bool = False
+    emissions_by_source: list[CarbonSourceResult] = Field(default_factory=list)
+    carbon_intensity: CarbonIntensity | None = None
+    data_confidence: CarbonDataConfidence = Field(default_factory=CarbonDataConfidence)
+    missing_data: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    factor_provenance: list[CarbonFactorProvenance] = Field(default_factory=list)
     impact_groups: dict[str, ImpactGroup] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def disjoint_allocation(self):
+    def validate_result(self):
         known = [group.annual_emissions_tco2e for group in self.impact_groups.values() if group.annual_emissions_tco2e is not None]
         if self.total_tco2e is not None and sum(known) > self.total_tco2e + 1e-8:
             raise ValueError("Disjoint impact groups exceed the total carbon baseline")
+        for line in self.emissions_by_source:
+            if line.reporting_year != self.reporting_year:
+                raise ValueError("Carbon source reporting year differs from CarbonResult")
+            if line.emissions_kgco2e is not None:
+                if line.activity_value is None or line.factor_kgco2e_per_unit is None:
+                    raise ValueError("Carbon emissions require activity and a documented factor")
+                expected = line.activity_value * line.factor_kgco2e_per_unit
+                if abs(line.emissions_kgco2e - expected) > max(1e-8, expected * 1e-12):
+                    raise ValueError("Carbon source emissions do not match activity × emission factor")
+                if line.emissions_tco2e is None or abs(line.emissions_tco2e - expected / 1000) > max(1e-11, expected * 1e-15):
+                    raise ValueError("Carbon source tonnes do not match kgCO2e / 1000")
+        source_totals = {
+            scope: sum(line.emissions_kgco2e for line in self.emissions_by_source
+                       if line.scope == scope and line.emissions_kgco2e is not None)
+            for scope in ("Scope 1", "Scope 2")
+        }
+        if self.emissions_by_source:
+            for scope, field_value in (
+                ("Scope 1", self.scope1_emissions_tco2e),
+                ("Scope 2", self.scope2_emissions_tco2e),
+            ):
+                source_lines = [line for line in self.emissions_by_source
+                                if line.scope == scope and line.emissions_kgco2e is not None]
+                if (field_value is None) != (not source_lines):
+                    raise ValueError(f"{scope} subtotal does not match its source breakdown")
+                if field_value is not None and not isclose(field_value, source_totals[scope] / 1000, rel_tol=1e-12, abs_tol=1e-8):
+                    raise ValueError(f"{scope} subtotal does not match its source breakdown")
+            known_scopes = [value for value in (self.scope1_emissions_tco2e, self.scope2_emissions_tco2e) if value is not None]
+            expected_total = sum(known_scopes) if known_scopes else None
+            if expected_total is None:
+                if self.total_tco2e is not None:
+                    raise ValueError("Total emissions cannot be known without any known scope subtotal")
+            elif self.total_tco2e is None or not isclose(self.total_tco2e, expected_total, rel_tol=1e-12, abs_tol=1e-8):
+                raise ValueError("Total emissions do not match the known scope subtotals")
         return self
+
+
+# Retain the existing tool-facing name while making the full CarbonResult the
+# typed service contract consumed by MainAgent.
+CarbonAnalysis = CarbonResult
 
 
 class FinancialAnalysis(ServiceFacts):
@@ -136,7 +242,7 @@ class TransitionOptions(ServiceFacts):
 
 
 class CarbonToolResult(Contract):
-    data: CarbonAnalysis | None = None
+    data: CarbonResult | None = None
     missing_context: list[str] = Field(default_factory=list)
 
 
