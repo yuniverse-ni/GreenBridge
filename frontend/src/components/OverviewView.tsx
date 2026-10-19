@@ -1,23 +1,50 @@
 import React from 'react';
-import { useTransition } from '../context/TransitionContext';
 import { ArrowRight, UploadCloud } from 'lucide-react';
-import { formatCurrency } from '../utils/transitionCalculations';
+import { useTransition } from '../context/TransitionContext';
+import { useFinanceAnalysis } from '../hooks/useFinanceAnalysis';
+import { FinanceResult } from '../services/finance';
+import { TransitionTab } from '../types/transition';
+import { financeAmount, financeMetric } from '../utils/financePresentation';
+import { CarbonResult, carbonNumber, useCarbonAnalysis } from '../services/carbon';
+
+export function OverviewSummary({ result, carbon, onNavigate }: {
+  result: FinanceResult | null; carbon?: CarbonResult | null; onNavigate?: (page: TransitionTab) => void;
+}) {
+  return <>
+    <div className="gb-metric-strip" aria-label="Financial summary">
+      <div><span>Revenue</span><strong>{financeAmount(result?.inputs.revenue)}</strong></div>
+      <div><span>EBITDA</span><strong>{financeAmount(result?.ebitda)}</strong></div>
+      <div><span>Cash balance</span><strong>{financeAmount(result?.inputs.cash_balance)}</strong></div>
+      <div><span>Debt-service coverage <small>(EBITDA basis)</small></span><strong>{financeMetric(result?.metrics.ebitda_debt_service_coverage)}</strong></div>
+    </div>
+    <div className="gb-overview-analysis">
+      <article className="gb-panel"><h2>Financial analysis</h2>
+        <p>{result ? `${result.company_id} · ${result.reporting_year}` : 'Your financial summary will appear after data review.'}</p>
+        {result?.readiness.partial_accepted && <p>Some information is incomplete. Review the accepted limitations.</p>}
+        <button className="gb-button gb-primary" onClick={() => onNavigate?.('financials')}>Review financial analysis <ArrowRight size={14} /></button>
+      </article>
+      <article className="gb-panel"><h2>Carbon analysis</h2><p>{carbon
+        ? carbon.total_emissions == null ? 'Some activity is missing. Review your partial Carbon analysis.'
+          : `${carbonNumber(carbon.total_emissions)} tCO₂e · ${carbon.reporting_year}`
+        : 'Carbon analysis not available yet.'}</p>
+        <button className="gb-button gb-primary" onClick={() => onNavigate?.('baseline')}>Review carbon analysis <ArrowRight size={14} /></button>
+      </article>
+    </div>
+    <div className="gb-overview-next"><p>Review your analysis, then explore transition actions and ask AI Copilot for recommendations.</p>
+      <button className="gb-button" onClick={() => onNavigate?.('actions')}>Explore transition actions <ArrowRight size={14} /></button></div>
+  </>;
+}
 
 export const OverviewView: React.FC = () => {
-  const {
-    profile, baseline, financial, selectedActions,
-    activityRecords, setActiveTab, navigateToUpload,
-  } = useTransition();
-  const isWorkspaceEmpty = activityRecords.length === 0;
-  const totalPlannedCapex = selectedActions.reduce((sum, action) => sum + action.capex, 0);
-  const totalPlannedSavings = selectedActions.reduce((sum, action) => sum + action.annualOpExSavings, 0);
-
-  return <section className="gb-dashboard">
-    <div className="gb-page-heading"><div><div className="gb-eyebrow">TRANSITION FINANCE WORKSPACE</div><h1>Overview</h1><p>Your operating baseline, selected investments and evidence in one view.</p></div><div className="gb-header-actions"><button className="gb-button gb-primary" onClick={() => navigateToUpload('full_business_data', 'hero')}><UploadCloud size={14} /> Add documents</button></div></div>
-    <div className="gb-metric-strip"><div><span>Carbon Baseline</span><strong>{baseline.totalTCO2e} <small>tCO2e</small></strong></div><div><span>Planned Investment</span><strong>{formatCurrency(totalPlannedCapex, profile.currency)}</strong></div><div><span>Projected Annual Savings</span><strong>{formatCurrency(totalPlannedSavings, profile.currency)}</strong></div><div><span>Current DSCR</span><strong>{financial.currentDscr.toFixed(2)}<small>x</small></strong></div></div>
-    <div className="gb-overview-grid"><article className="gb-panel gb-overview-roadmap"><div className="gb-panel-heading"><h2>Selected Transition Roadmap</h2><button className="gb-text-button" onClick={() => setActiveTab('actions')}>Manage actions <ArrowRight size={13} /></button></div><p>Projected equipment and financing outcomes; validate against source evidence.</p><div className="gb-table-scroll"><table><thead><tr><th>Intervention</th><th>Investment</th><th>Annual savings</th><th>Carbon reduction</th></tr></thead><tbody>{!isWorkspaceEmpty && selectedActions.map(a => <tr key={a.id}><td>{a.title}<small>{a.recommendedPriority} priority | {a.paybackPeriodYears} year payback</small></td><td>{formatCurrency(a.capex, profile.currency)}</td><td>{formatCurrency(a.annualOpExSavings, profile.currency)}</td><td>{a.annualCO2eReductionTons} t / year</td></tr>)}{(isWorkspaceEmpty || !selectedActions.length) && <tr><td colSpan={4}>Upload records and select interventions to build your roadmap.</td></tr>}</tbody></table></div><div className="gb-overview-actions"><button className="gb-button" onClick={() => setActiveTab('copilot')}>Review with AI Copilot <ArrowRight size={14} /></button><button className="gb-button gb-primary" onClick={() => setActiveTab('transition-plan')}>Prepare Lender Pack <ArrowRight size={14} /></button></div></article>
-    <article className="gb-panel gb-overview-summary"><h2>Carbon &amp; Evidence</h2><dl className="gb-facts"><div><dt>Scope 1</dt><dd>{baseline.scope1TCO2e} tCO2e</dd></div><div><dt>Scope 2</dt><dd>{baseline.scope2TCO2e} tCO2e</dd></div><div><dt>Activity records</dt><dd>{activityRecords.length}</dd></div><div><dt>Data confidence</dt><dd>{baseline.dataConfidence.overallScorePct}% | {baseline.dataConfidence.level}</dd></div></dl><button className="gb-text-button" onClick={() => setActiveTab('baseline')}>View carbon analysis <ArrowRight size={13} /></button></article>
-    <article className="gb-panel gb-overview-summary"><h2>Financial Position</h2><dl className="gb-facts"><div><dt>Annual revenue</dt><dd>{formatCurrency(financial.annualRevenue, profile.currency)}</dd></div><div><dt>Cash balance</dt><dd>{formatCurrency(financial.cashBalance, profile.currency)}</dd></div><div><dt>Annual utility costs</dt><dd>{formatCurrency(financial.totalUtilityCost, profile.currency)}</dd></div><div><dt>CapEx budget</dt><dd>{formatCurrency(profile.maxCapExBudget, profile.currency)}</dd></div></dl><button className="gb-text-button" onClick={() => setActiveTab('financials')}>View financial analysis <ArrowRight size={13} /></button></article>
-    </div>
+  const { setActiveTab } = useTransition();
+  const { result, message, busy, refresh } = useFinanceAnalysis();
+  const carbon = useCarbonAnalysis();
+  return <section className="gb-dashboard gb-analysis-overview" aria-label="Overview" aria-busy={busy}>
+    <div className="gb-page-heading"><div><h1>Overview</h1><p>Review your business position before planning your transition.</p></div>
+      <div className="gb-header-actions"><button className="gb-button" disabled={busy || carbon.busy} onClick={() => { refresh(); carbon.refresh(); }}>Refresh analysis</button>
+        <button className="gb-button" onClick={() => setActiveTab('ingestion')}><UploadCloud size={14} /> Data &amp; Documents</button></div></div>
+    {busy && <p role="status">Loading your analysis…</p>}
+    {message && <p role="status">{message}</p>}
+    {!busy && <OverviewSummary result={result} carbon={carbon.result} onNavigate={setActiveTab} />}
   </section>;
 };

@@ -1,7 +1,7 @@
 // TransitionAI — Legal Onboarding & Terms/Privacy Consent Modal
 // Faithfully implements the UI design from Page 7 and the full text from Pages 9-21 of Law x Tech.pdf
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   FileText,
   ShieldCheck,
@@ -10,19 +10,52 @@ import {
   X,
   ExternalLink,
   Lock,
-  AlertTriangle
+  AlertTriangle,
+  ArrowDown
 } from 'lucide-react';
 
 interface LegalOnboardingModalProps {
   isOpen: boolean;
   onAccept: () => void;
   onClose?: () => void;
+  title?: string;
+  subtitle?: string;
 }
 
-export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({ isOpen, onAccept, onClose }) => {
+export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({
+  isOpen,
+  onAccept,
+  onClose,
+  title = "Terms & Conditions and Privacy Notice",
+  subtitle = "Please review and agree to the platform terms and privacy notice to continue using GreenBridge."
+}) => {
   const [agreedTerms, setAgreedTerms] = useState<boolean>(false);
   const [acknowledgedPrivacy, setAcknowledgedPrivacy] = useState<boolean>(false);
   const [activeDoc, setActiveDoc] = useState<'none' | 'terms' | 'privacy'>('none');
+  const [termsScrolledEnd, setTermsScrolledEnd] = useState<boolean>(false);
+  const [privacyScrolledEnd, setPrivacyScrolledEnd] = useState<boolean>(false);
+  const docScrollRef = useRef<HTMLDivElement>(null);
+
+  const canAcceptDoc = activeDoc === 'terms' ? termsScrolledEnd : activeDoc === 'privacy' ? privacyScrolledEnd : false;
+
+  const handleDocScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop - clientHeight <= 30) {
+      if (activeDoc === 'terms') setTermsScrolledEnd(true);
+      if (activeDoc === 'privacy') setPrivacyScrolledEnd(true);
+    }
+  };
+
+  useEffect(() => {
+    if (activeDoc !== 'none' && docScrollRef.current) {
+      docScrollRef.current.scrollTop = 0;
+      const { scrollHeight, clientHeight } = docScrollRef.current;
+      if (scrollHeight <= clientHeight + 20) {
+        if (activeDoc === 'terms') setTermsScrolledEnd(true);
+        if (activeDoc === 'privacy') setPrivacyScrolledEnd(true);
+      }
+    }
+  }, [activeDoc]);
 
   if (!isOpen) return null;
 
@@ -30,15 +63,15 @@ export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({ isOp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-      <div role="dialog" aria-modal="true" aria-label="Lender Pack consent" className="gb-approval-modal bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 animate-in fade-in duration-200 relative">
-        {onClose && <button type="button" className="absolute right-4 top-4 text-slate-500" aria-label="Cancel consent review" onClick={onClose}><X size={18} /></button>}
+      <div role="dialog" aria-modal="true" aria-label={title} className="gb-approval-modal bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 animate-in fade-in duration-200 relative">
+        {onClose && <button type="button" className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition" aria-label="Cancel consent review" onClick={onClose}><X size={18} /></button>}
         <div className="text-center mb-6">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3 border border-emerald-100">
             <ShieldCheck className="w-6 h-6" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Before sharing your Lender Pack</h2>
+          <h2 className="text-xl font-bold text-slate-900">{title}</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Review the terms and privacy notice before continuing to SME disclosure approval.
+            {subtitle}
           </p>
         </div>
 
@@ -92,18 +125,25 @@ export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({ isOp
         {/* Acceptance Checkboxes */}
         <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3 mb-6">
           <p className="text-[11px] text-slate-500 font-medium">
-            Please review both documents before continuing.
+            Please open, scroll to the bottom, and accept both documents before continuing.
           </p>
 
           <label className="flex items-start space-x-2.5 cursor-pointer">
             <input
               type="checkbox"
               checked={agreedTerms}
-              onChange={(e) => setAgreedTerms(e.target.checked)}
+              onChange={(e) => {
+                if (!termsScrolledEnd && e.target.checked) {
+                  setActiveDoc('terms');
+                  return;
+                }
+                setAgreedTerms(e.target.checked);
+              }}
               className="mt-0.5 w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
             />
             <span className="text-xs text-slate-700 select-none">
               I agree to the <button type="button" onClick={() => setActiveDoc('terms')} className="text-emerald-700 font-semibold underline">Terms & Conditions</button>.
+              {!termsScrolledEnd && <span className="ml-1 text-[10px] text-amber-700 font-medium">(click to review & scroll)</span>}
             </span>
           </label>
 
@@ -111,11 +151,18 @@ export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({ isOp
             <input
               type="checkbox"
               checked={acknowledgedPrivacy}
-              onChange={(e) => setAcknowledgedPrivacy(e.target.checked)}
+              onChange={(e) => {
+                if (!privacyScrolledEnd && e.target.checked) {
+                  setActiveDoc('privacy');
+                  return;
+                }
+                setAcknowledgedPrivacy(e.target.checked);
+              }}
               className="mt-0.5 w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
             />
             <span className="text-xs text-slate-700 select-none">
               I acknowledge that I have read the <button type="button" onClick={() => setActiveDoc('privacy')} className="text-emerald-700 font-semibold underline">Privacy Notice</button>.
+              {!privacyScrolledEnd && <span className="ml-1 text-[10px] text-amber-700 font-medium">(click to review & scroll)</span>}
             </span>
           </label>
         </div>
@@ -158,7 +205,11 @@ export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({ isOp
             </div>
 
             {/* Modal Scrollable Content */}
-            <div className="p-6 overflow-y-auto text-xs leading-relaxed text-slate-700 space-y-4 font-sans">
+            <div
+              ref={docScrollRef}
+              onScroll={handleDocScroll}
+              className="p-6 overflow-y-auto text-xs leading-relaxed text-slate-700 space-y-4 font-sans select-text max-h-[60vh]"
+            >
               {activeDoc === 'terms' ? (
                 <>
                   <section>
@@ -266,22 +317,58 @@ export const LegalOnboardingModal: React.FC<LegalOnboardingModalProps> = ({ isOp
                   </section>
                 </>
               )}
+
+              {/* End of Document Confirmation Marker */}
+              <div className="mt-8 pt-4 border-t border-slate-200 text-center flex flex-col items-center justify-center gap-1.5 pb-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition ${canAcceptDoc ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <p className="text-xs font-semibold text-slate-800">
+                  {canAcceptDoc
+                    ? `You have reached the end of ${activeDoc === 'terms' ? 'Terms & Conditions' : 'Privacy Notice'}`
+                    : 'Scroll down completely to reach the end'}
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  {canAcceptDoc
+                    ? 'Click "Accept & Close" below to confirm.'
+                    : 'Please scroll through all provisions before accepting.'}
+                </p>
+              </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between rounded-b-2xl">
-              <span className="text-xs text-slate-500">
-                {activeDoc === 'terms' ? 'Read full Terms & Conditions' : 'Read full Privacy Notice'}
-              </span>
+            <div className="p-4 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3 rounded-b-2xl">
+              <div className="flex items-center gap-2">
+                {!canAcceptDoc ? (
+                  <span className="flex items-center gap-1.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full font-medium">
+                    <ArrowDown className="w-3.5 h-3.5 text-amber-600 animate-bounce" />
+                    <span>Scroll to the end</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Document completed</span>
+                  </span>
+                )}
+              </div>
               <button
+                type="button"
+                disabled={!canAcceptDoc}
                 onClick={() => {
+                  if (!canAcceptDoc) return;
                   if (activeDoc === 'terms') setAgreedTerms(true);
                   if (activeDoc === 'privacy') setAcknowledgedPrivacy(true);
                   setActiveDoc('none');
                 }}
-                className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition"
+                className={`px-5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
+                  canAcceptDoc
+                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer'
+                    : 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed opacity-80'
+                }`}
+                title={canAcceptDoc ? 'Accept & Close' : 'Please scroll to the bottom of the document first'}
               >
-                Accept & Close
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Accept & Close</span>
               </button>
             </div>
           </div>

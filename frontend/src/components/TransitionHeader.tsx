@@ -7,12 +7,21 @@ import { Leaf, LayoutDashboard, Database, Coins, Lightbulb, MessageSquare, FileC
 interface Props { collapsed: boolean; onToggle: () => void }
 
 export const TransitionHeader: React.FC<Props> = ({ collapsed, onToggle }) => {
-  const { activeTab, setActiveTab, profile, currentRole, clearWorkspace, isLoading } = useTransition();
+  const {
+    activeTab,
+    setActiveTab,
+    profile,
+    currentRole,
+    clearWorkspace,
+    isLoading,
+    pythonEngineStatus,
+    checkPythonEngine
+  } = useTransition();
   const items = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'ingestion', label: 'Data & Documents', icon: Database },
-    { id: 'baseline', label: 'Carbon Analysis', icon: Leaf },
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'financials', label: 'Financial Analysis', icon: Coins },
+    { id: 'baseline', label: 'Carbon Analysis', icon: Leaf },
     { id: 'actions', label: 'Transition Actions', icon: Lightbulb },
     { id: 'copilot', label: 'AI Copilot', icon: MessageSquare },
     { id: 'transition-plan', label: 'Lender Pack', icon: FileCheck2 },
@@ -37,6 +46,36 @@ export const TransitionHeader: React.FC<Props> = ({ collapsed, onToggle }) => {
     <header className="gb-topbar">
       <div className="gb-header-page"><div className="gb-company"><strong>{profile.name || 'SME Workspace'}</strong><span>FY {profile.reportingYear} | {profile.currency} | {profile.gridRegion || 'Malaysia'}</span></div></div>
       <div className="gb-header-actions">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => checkPythonEngine()}
+          title={pythonEngineStatus.connected ? `Python FastAPI Engine Connected (${pythonEngineStatus.backendUrl}) - Click to refresh` : `Python FastAPI Offline (${pythonEngineStatus.backendUrl}) - Click to retry`}
+          style={{
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '11px',
+            fontWeight: 600,
+            padding: '4px 10px',
+            borderRadius: '9999px',
+            background: pythonEngineStatus.connected ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+            color: pythonEngineStatus.connected ? '#15803d' : '#b91c1c',
+            border: `1px solid ${pythonEngineStatus.connected ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+            userSelect: 'none'
+          }}
+        >
+          <span
+            style={{
+              width: '7px',
+              height: '7px',
+              borderRadius: '50%',
+              background: pythonEngineStatus.connected ? '#22c55e' : '#ef4444'
+            }}
+          />
+          <span>{pythonEngineStatus.connected ? 'Python :8000' : 'Engine Offline'}</span>
+        </div>
         <ProfileMenu />
         <button className="gb-button gb-icon-button" title="Reset workspace" aria-label="Reset workspace" disabled={isLoading} onClick={clearWorkspace}><RotateCcw size={15} /></button>
       </div>

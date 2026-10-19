@@ -621,6 +621,8 @@ export const TransitionPlanView: React.FC = () => {
       <LegalOnboardingModal
         isOpen={showLegalConsent}
         onClose={() => setShowLegalConsent(false)}
+        title="Before sharing your Lender Pack"
+        subtitle="Review the terms and privacy notice before continuing to SME disclosure approval."
         onAccept={() => {
           localStorage.setItem('transitionai_legal_accepted', 'true');
           setShowLegalConsent(false);

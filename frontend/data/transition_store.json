@@ -26,61 +26,11 @@
     "ACT-SOLAR-01",
     "ACT-LED-02"
   ],
-  "lenderPackages": [
-    {
-      "id": "PKG-1792301187768",
-      "packageName": "SME Green Transition Financing Pack",
-      "companyName": "Apex Precision Engineering Sdn Bhd",
-      "createdDate": "2026-10-18",
-      "authorizedBy": "SME Managing Director / Owner",
-      "authorizedRole": "sme_owner",
-      "sharingToken": "lp_bjwm9t69mvddunco",
-      "isShared": true,
-      "sharedWithLenders": [
-        "Malayan Banking Berhad (Maybank Green Facilities)",
-        "CIMB Sustainability Advisory"
-      ],
-      "expiresAt": "2026-12-17",
-      "disclosures": {
-        "includeExecutiveSummary": true,
-        "includeCarbonBaseline": true,
-        "includeFinancialSummary": true,
-        "includeDecarbonisationPlan": true,
-        "includeCashFlowProjections": true,
-        "includeEvidenceDocuments": true
-      },
-      "lenderRiskAssessment": {
-        "overallRisk": "Moderate",
-        "creditReadinessScore": 40,
-        "dscrStressTestPassed": true,
-        "carbonVerificationStatus": "Self-Declared with Invoices",
-        "lenderKeyStrengths": [
-          "Strong Debt Service Coverage Ratio (DSCR 50.00x) well above 1.25x covenant.",
-          "High audit trail verification with 0% invoice-metered evidence.",
-          "Decarbonisation plan generates net cash-flow positive energy bill savings from Year 1."
-        ],
-        "lenderKeyRisks": [
-          "Technology execution risk during rooftop solar installation (mitigated by Tier-1 EPC contractor warranty).",
-          "Inflationary utility tariff volatility (solar self-consumption hedges against fuel cost pass-through surcharge)."
-        ]
-      },
-      "executiveSummaryText": "The Borrower is presenting this Green Financing Package to Maybank SME Green Facility for the purpose of \"Concessionary Green Financing Application under BNM Low Carbon Transition Facility (LCTF)\". Authorized CapEx commitment totals RM 152,800 with projected 42.3 tCO2e annual emissions abatement. Formally authorized by Managing Director (Authorised Representative / Director).",
-      "auditEvidenceFiles": []
-    }
-  ],
+  "lenderPackages": [],
   "auditLogs": [
     {
-      "id": "AUDIT-1792301187768",
-      "timestamp": "2026-10-18T05:26:27.768Z",
-      "userRole": "sme_owner",
-      "action": "Lender Financing Package Created",
-      "details": "Created package \"SME Green Transition Financing Pack\" with token lp_bjwm9t69mvddunco. Approved disclosures for prospective credit institutions.",
-      "category": "LENDER_DISCLOSURE",
-      "evidenceRef": "lp_bjwm9t69mvddunco"
-    },
-    {
-      "id": "AUDIT-1792300987374",
-      "timestamp": "2026-10-18T05:23:07.374Z",
+      "id": "AUDIT-1792338961050",
+      "timestamp": "2026-10-18T15:56:01.050Z",
       "userRole": "sme_owner",
       "action": "Workspace Reset",
       "details": "All activity records, files, and simulations cleared to pristine empty state.",

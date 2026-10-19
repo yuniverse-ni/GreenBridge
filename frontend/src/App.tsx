@@ -17,6 +17,7 @@ import { TransitionCopilotView } from './components/TransitionCopilotView';
 import { AuditEvidenceView } from './components/AuditEvidenceView';
 import { FinancialTestSuiteView } from './components/FinancialTestSuiteView';
 import { LegalGovernanceView } from './components/LegalGovernanceView';
+import { LegalOnboardingModal } from './components/LegalOnboardingModal';
 
 
 const AppContent: React.FC = () => {
@@ -57,11 +58,49 @@ const AppContent: React.FC = () => {
 };
 
 const SignedInApp: React.FC = () => {
-  const { session } = useDemoAuth();
+  const { session, signOut } = useDemoAuth();
+  const [hasAgreed, setHasAgreed] = useState<boolean>(() => {
+    return sessionStorage.getItem('greenbridge_login_terms_agreed') === 'true';
+  });
+
+  React.useEffect(() => {
+    if (!session) {
+      setHasAgreed(false);
+    } else {
+      setHasAgreed(sessionStorage.getItem('greenbridge_login_terms_agreed') === 'true');
+    }
+  }, [session]);
+
   if (!session) return <DemoLogin />;
-  // Lenders never mount TransitionProvider or fetch /api/transition/state.
-  if (session.role === 'lender') return <LenderPortal key="lender" />;
-  return <TransitionProvider key={session.role}><AppContent /></TransitionProvider>;
+
+  const content = session.role === 'lender' ? (
+    <LenderPortal key="lender" />
+  ) : (
+    <TransitionProvider key={session.role}>
+      <AppContent />
+    </TransitionProvider>
+  );
+
+  if (!hasAgreed) {
+    return (
+      <>
+        {content}
+        <LegalOnboardingModal
+          isOpen={true}
+          onClose={signOut}
+          title="Terms & Conditions and Privacy Notice"
+          subtitle="Please review and agree to the platform terms and privacy notice to continue using GreenBridge."
+          onAccept={() => {
+            sessionStorage.setItem('greenbridge_login_terms_agreed', 'true');
+            localStorage.setItem('transitionai_legal_accepted', 'true');
+            setHasAgreed(true);
+          }}
+        />
+      </>
+    );
+  }
+
+  return content;
 };
 
 export default function App() {

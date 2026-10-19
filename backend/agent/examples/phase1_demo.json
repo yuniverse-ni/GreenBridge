@@ -1,0 +1,409 @@
+{
+  "data_origin": "TEST_DOUBLE - supplied demo fixtures; not production analysis or lender terms",
+  "company_id": "SME-TEST",
+  "reporting_year": 2024,
+  "objective": {
+    "mode": "PLAN_TRANSITION",
+    "focus": "BALANCED",
+    "description": "Review feasible transition pathways",
+    "constraints": {
+      "carbon_reduction_target_pct": 30.0,
+      "minimum_cash_reserve": 200000.0,
+      "maximum_payback_years": 6.0,
+      "maximum_capex": null,
+      "minimum_post_financing_dscr": null,
+      "maximum_annual_financing_payment": null
+    },
+    "funding": {
+      "mode": "FINANCE_IF_NEEDED",
+      "grant_amount": 10000.0,
+      "maximum_sme_contribution": null,
+      "terms": {
+        "annual_interest_rate_pct": 4.0,
+        "tenure_years": 7
+      }
+    },
+    "action_ids": []
+  },
+  "readiness": {
+    "carbon_analysis": {
+      "status": "READY",
+      "reasons": [
+        "Explicit test fixture"
+      ],
+      "partial_accepted": false,
+      "may_proceed": true
+    },
+    "financial_analysis": {
+      "status": "READY",
+      "reasons": [
+        "Explicit test fixture"
+      ],
+      "partial_accepted": false,
+      "may_proceed": true
+    },
+    "transition_analysis": {
+      "status": "READY",
+      "reasons": [
+        "Explicit test fixture"
+      ],
+      "partial_accepted": false,
+      "may_proceed": true
+    }
+  },
+  "before_human_review": "HUMAN_REVIEW_REQUIRED",
+  "recommendation": {
+    "selected_pathway_id": "SOLAR",
+    "summary": "Review Rooftop solar: it passes the illustrative screen. Feasibility first; then shortest payback, carbon reduction, net annual benefit; lower CAPEX and pathway ID break ties.",
+    "reasons": [
+      "Feasibility first; then shortest payback, carbon reduction, net annual benefit; lower CAPEX and pathway ID break ties.",
+      "This is SME decision support, not a lending decision or disclosure authorization.",
+      "minimum_cash_reserve: PASS",
+      "capex_limit: PASS",
+      "carbon_target: PASS",
+      "maximum_payback: PASS",
+      "funding: PASS",
+      "positive_annual_cash_benefit: PASS",
+      "company_post_financing_dscr: PASS"
+    ],
+    "screening_only": true
+  },
+  "selected_pathway": {
+    "pathway": {
+      "pathway_id": "SOLAR",
+      "name": "Rooftop solar",
+      "action_ids": [
+        "SOLAR"
+      ],
+      "capex": 100000.0,
+      "annual_savings": 50000.0,
+      "annual_emissions_reduction_tco2e": 50.0,
+      "carbon_reduction_pct": 50.0,
+      "simple_payback_years": 2.0,
+      "grant": 10000.0,
+      "sme_contribution": 20000.0,
+      "financing_principal": 70000.0,
+      "cash_impact": -20000.0,
+      "remaining_cash": 200000.0,
+      "stages": [
+        {
+          "action_id": "SOLAR",
+          "impact_group": "electricity",
+          "annual_savings": 50000.0,
+          "annual_emissions_reduction_tco2e": 50.0
+        }
+      ],
+      "assumptions": [
+        "Stages act sequentially on residual emissions/cost within explicitly disjoint impact groups.",
+        "Metrics are steady-state after all stages; simple payback does not model installation delays.",
+        "All CAPEX funding is reserved upfront; no overlapping standalone savings are blindly added."
+      ],
+      "evidence_limitations": [],
+      "missing_context": [],
+      "warnings": [
+        "TEST_DOUBLE: projections use supplied demonstration fixtures, not verified service analysis."
+      ],
+      "information_status": "PROJECTED"
+    },
+    "financing": {
+      "capex": 100000.0,
+      "sme_contribution": 20000.0,
+      "grant": 10000.0,
+      "principal": 70000.0,
+      "monthly_repayment": 956.8164435542893,
+      "annual_debt_service": 11481.797322651471,
+      "total_repayment": 80372.5812585603,
+      "total_interest": 10372.581258560298,
+      "net_annual_cash_flow": 38518.20267734853,
+      "post_financing_dscr": 6.982655955041181,
+      "terms": {
+        "annual_interest_rate_pct": 4.0,
+        "tenure_years": 7
+      },
+      "assumptions": [
+        "Equal monthly payments at a fixed nominal annual rate; no fees, tax or balloon payment.",
+        "CFADS is service-supplied baseline cash available for debt service before incremental pathway savings.",
+        "CAPEX equals SME contribution plus grant plus financing principal. No lender offer or credit approval."
+      ],
+      "warnings": []
+    },
+    "constraints": {
+      "pathway_id": "SOLAR",
+      "checks": [
+        {
+          "name": "minimum_cash_reserve",
+          "status": "PASS",
+          "critical": true,
+          "reason": "Observed 200000; required limit 200000.",
+          "missing_fields": []
+        },
+        {
+          "name": "capex_limit",
+          "status": "PASS",
+          "critical": true,
+          "reason": "Observed 100000; required limit 200000.",
+          "missing_fields": []
+        },
+        {
+          "name": "carbon_target",
+          "status": "PASS",
+          "critical": true,
+          "reason": "Observed 50; required limit 30.",
+          "missing_fields": []
+        },
+        {
+          "name": "maximum_payback",
+          "status": "PASS",
+          "critical": true,
+          "reason": "Observed 2; required limit 6.",
+          "missing_fields": []
+        },
+        {
+          "name": "funding",
+          "status": "PASS",
+          "critical": true,
+          "reason": "Funding reconciles; financing was simulated where needed.",
+          "missing_fields": []
+        },
+        {
+          "name": "positive_annual_cash_benefit",
+          "status": "PASS",
+          "critical": true,
+          "reason": "Observed 38518.2; required limit 0.",
+          "missing_fields": []
+        },
+        {
+          "name": "company_post_financing_dscr",
+          "status": "PASS",
+          "critical": true,
+          "reason": "Observed 6.98266; required limit 1.25.",
+          "missing_fields": []
+        }
+      ],
+      "status": "PASS"
+    },
+    "rank": 1,
+    "feasible": true,
+    "reasons": [
+      "minimum_cash_reserve: PASS \u2014 Observed 200000; required limit 200000.",
+      "capex_limit: PASS \u2014 Observed 100000; required limit 200000.",
+      "carbon_target: PASS \u2014 Observed 50; required limit 30.",
+      "maximum_payback: PASS \u2014 Observed 2; required limit 6.",
+      "funding: PASS \u2014 Funding reconciles; financing was simulated where needed.",
+      "positive_annual_cash_benefit: PASS \u2014 Observed 38518.2; required limit 0.",
+      "company_post_financing_dscr: PASS \u2014 Observed 6.98266; required limit 1.25."
+    ]
+  },
+  "llm_explanation": {
+    "selected_pathway_id": "SOLAR",
+    "summary": "The selected pathway passes the deterministic screen and is ready for SME review.",
+    "trade_offs": [
+      "Projected benefits must be considered alongside upfront cash commitments and financing repayments."
+    ],
+    "risks": [
+      "Projections rely on declared assumptions and evidence quality; this is not a lending or disclosure approval."
+    ],
+    "missing_data": [
+      "Review the structured missing-context and evidence limitations in the deterministic results."
+    ]
+  },
+  "warnings": [
+    "TEST_DOUBLE: get_carbon_analysis uses explicit fixtures, not verified service data.",
+    "TEST_DOUBLE: get_financial_analysis uses explicit fixtures, not verified service data.",
+    "TEST_DOUBLE: get_transition_options uses explicit fixtures, not verified service data.",
+    "TEST_DOUBLE: projections use supplied demonstration fixtures, not verified service analysis.",
+    "Gemini unavailable or invalid; deterministic recommendation retained."
+  ],
+  "after_human_review": "ACCEPTED",
+  "human_decision": {
+    "action": "ACCEPT",
+    "actor": "SME Owner",
+    "reason": "Reviewed the explicit demonstration projections",
+    "selected_pathway_id": "SOLAR",
+    "at": "2026-10-18T07:03:41.388425+00:00"
+  },
+  "execution_trace": [
+    {
+      "event": "AGENT_STARTED",
+      "detail": "Main agent started; no disclosure operations are available.",
+      "tool": null,
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.373504Z"
+    },
+    {
+      "event": "READINESS_CHECKED",
+      "detail": "Required modules: carbon_analysis, financial_analysis, transition_analysis.",
+      "tool": null,
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.375507Z"
+    },
+    {
+      "event": "TOOL_PLAN_SELECTED",
+      "detail": "get_carbon_analysis, get_financial_analysis, get_transition_options",
+      "tool": null,
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.376506Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "get_carbon_analysis",
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.376506Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "get_financial_analysis",
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.377508Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "get_transition_options",
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.377508Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "simulate_transition",
+      "pathway_id": "LED",
+      "at": "2026-10-18T07:03:41.378504Z"
+    },
+    {
+      "event": "PATHWAY_SIMULATED",
+      "detail": "Ordered residual-impact projection calculated.",
+      "tool": null,
+      "pathway_id": "LED",
+      "at": "2026-10-18T07:03:41.378504Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "simulate_transition",
+      "pathway_id": "SOLAR",
+      "at": "2026-10-18T07:03:41.378504Z"
+    },
+    {
+      "event": "PATHWAY_SIMULATED",
+      "detail": "Ordered residual-impact projection calculated.",
+      "tool": null,
+      "pathway_id": "SOLAR",
+      "at": "2026-10-18T07:03:41.379503Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "simulate_transition",
+      "pathway_id": "LED-SOLAR",
+      "at": "2026-10-18T07:03:41.379503Z"
+    },
+    {
+      "event": "PATHWAY_SIMULATED",
+      "detail": "Ordered residual-impact projection calculated.",
+      "tool": null,
+      "pathway_id": "LED-SOLAR",
+      "at": "2026-10-18T07:03:41.379503Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "simulate_financing",
+      "pathway_id": "SOLAR",
+      "at": "2026-10-18T07:03:41.379503Z"
+    },
+    {
+      "event": "FINANCING_SIMULATED",
+      "detail": "Funding reconciled; monthly amortisation calculated.",
+      "tool": null,
+      "pathway_id": "SOLAR",
+      "at": "2026-10-18T07:03:41.379503Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "simulate_financing",
+      "pathway_id": "LED-SOLAR",
+      "at": "2026-10-18T07:03:41.379503Z"
+    },
+    {
+      "event": "FINANCING_SIMULATED",
+      "detail": "Funding reconciled; monthly amortisation calculated.",
+      "tool": null,
+      "pathway_id": "LED-SOLAR",
+      "at": "2026-10-18T07:03:41.381168Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "check_transition_constraints",
+      "pathway_id": "LED",
+      "at": "2026-10-18T07:03:41.381168Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "check_transition_constraints",
+      "pathway_id": "SOLAR",
+      "at": "2026-10-18T07:03:41.382176Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "check_transition_constraints",
+      "pathway_id": "LED-SOLAR",
+      "at": "2026-10-18T07:03:41.382176Z"
+    },
+    {
+      "event": "CONSTRAINTS_CHECKED",
+      "detail": "Critical UNKNOWN checks cannot pass screening.",
+      "tool": null,
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.382176Z"
+    },
+    {
+      "event": "TOOL_CALLED",
+      "detail": "Invoking typed allowlisted tool.",
+      "tool": "rank_transition_pathways",
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.382176Z"
+    },
+    {
+      "event": "PATHWAYS_RANKED",
+      "detail": "Feasibility first; then shortest payback, carbon reduction, net annual benefit; lower CAPEX and pathway ID break ties.",
+      "tool": null,
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.383175Z"
+    },
+    {
+      "event": "RECOMMENDATION_GENERATED",
+      "detail": "Selection is exclusively deterministic.",
+      "tool": null,
+      "pathway_id": "SOLAR",
+      "at": "2026-10-18T07:03:41.383175Z"
+    },
+    {
+      "event": "EXPLANATION_FALLBACK",
+      "detail": "Commentary cannot update deterministic state.",
+      "tool": null,
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.385424Z"
+    },
+    {
+      "event": "HUMAN_REVIEW_REQUESTED",
+      "detail": "SME must ACCEPT, REJECT or REQUEST_ALTERNATIVE.",
+      "tool": null,
+      "pathway_id": null,
+      "at": "2026-10-18T07:03:41.385424Z"
+    },
+    {
+      "event": "HUMAN_DECISION_RECORDED",
+      "detail": "SME decision: ACCEPT; no disclosure authorized.",
+      "tool": null,
+      "pathway_id": "SOLAR",
+      "at": "2026-10-18T07:03:41.388425Z"
+    }
+  ]
+}

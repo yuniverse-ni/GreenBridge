@@ -3,19 +3,20 @@ import { useTransition } from '../context/TransitionContext';
 import { formatCurrency } from '../utils/transitionCalculations';
 import { Coins, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
-type ScopeFilter = 'All Scopes' | 'Scope 1' | 'Scope 2' | 'Scope 3';
+type ScopeFilter = 'All Scopes' | 'Scope 1' | 'Scope 2';
 const PAGE_SIZE = 3;
 
 export const DecarbonisationActionsView: React.FC = () => {
-  const { allActions, selectedActionIds, toggleAction, profile, baseline } = useTransition();
+  const { allActions, selectedActionIds, toggleAction, profile, baseline, setActiveTab } = useTransition();
   const [scope, setScope] = useState<ScopeFilter>('All Scopes');
   const [page, setPage] = useState(0);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [showPlan, setShowPlan] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const action = allActions.find(item => item.id === detailId);
+  const supportedActions = allActions.filter(item => item.scopeTarget === 'Scope 1' || item.scopeTarget === 'Scope 2');
+  const action = supportedActions.find(item => item.id === detailId);
   const priorities = { High: 0, Medium: 1, Low: 2 };
-  const relevantActions = [...allActions]
+  const relevantActions = [...supportedActions]
     .filter(item => scope === 'All Scopes' || item.scopeTarget === scope)
     .sort((a, b) => priorities[a.recommendedPriority] - priorities[b.recommendedPriority]
       || b.annualCO2eReductionTons - a.annualCO2eReductionTons
@@ -23,7 +24,7 @@ export const DecarbonisationActionsView: React.FC = () => {
   const pageCount = Math.ceil(relevantActions.length / PAGE_SIZE);
   const currentPage = Math.min(page, Math.max(0, pageCount - 1));
   const visibleActions = relevantActions.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
-  const selectedActions = allActions.filter(item => selectedActionIds.includes(item.id));
+  const selectedActions = supportedActions.filter(item => selectedActionIds.includes(item.id));
   const totalPlannedCapex = selectedActions.reduce((sum, item) => sum + item.capex, 0);
   const totalPlannedSavings = selectedActions.reduce((sum, item) => sum + item.annualOpExSavings, 0);
   const totalPlannedCO2 = selectedActions.reduce((sum, item) => sum + item.annualCO2eReductionTons, 0);
@@ -43,18 +44,18 @@ export const DecarbonisationActionsView: React.FC = () => {
     <section className="gb-actions-page" aria-labelledby="actions-heading">
       <div className="gb-page-heading">
         <div><h1 id="actions-heading">Decarbonisation Actions</h1></div>
-        <button className="gb-button" onClick={() => setShowPlan(true)}>Selected plan ({selectedActions.length})</button>
+        <div className="gb-header-actions"><button className="gb-button" onClick={() => setShowPlan(true)}>Selected plan ({selectedActions.length})</button>
+          <button className="gb-button gb-primary" onClick={() => setActiveTab('copilot')}>Review with AI Copilot</button></div>
       </div>
       <div className="gb-scope-guide" aria-label="Emission scope explanation">
         <span>Emission Scope</span>
         <p><strong>Scope 1</strong> - Direct fuel/emissions</p>
         <p><strong>Scope 2</strong> - Purchased electricity</p>
-        <p><strong>Scope 3</strong> - Supply chain & other indirect emissions</p>
       </div>
       <div className="gb-action-toolbar">
         <label>Emission Scope
           <select value={scope} onChange={event => { setScope(event.target.value as ScopeFilter); setPage(0); }}>
-            {(['All Scopes', 'Scope 1', 'Scope 2', 'Scope 3'] as const).map(value => <option key={value}>{value}</option>)}
+            {(['All Scopes', 'Scope 1', 'Scope 2'] as const).map(value => <option key={value}>{value}</option>)}
           </select>
         </label>
         <p>Ordered by priority, then annual carbon reduction</p>
@@ -79,7 +80,7 @@ export const DecarbonisationActionsView: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="gb-actions-empty" role="status"><h2>{scope === 'Scope 3' ? 'Scope 3 actions are not available yet' : 'No actions available for this scope'}</h2><p>{scope === 'Scope 3' ? 'The current model covers Scope 1 and Scope 2; supply-chain actions have not been modelled.' : 'Try another scope or add business activity data.'}</p></div>
+        <div className="gb-actions-empty" role="status"><h2>No actions available for this scope</h2><p>Try another scope or add business activity data.</p></div>
       )}
       <div className="gb-action-pagination">
         <span aria-live="polite">{relevantActions.length ? `${currentPage * PAGE_SIZE + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, relevantActions.length)} of ${relevantActions.length} actions` : '0 actions'}</span>
