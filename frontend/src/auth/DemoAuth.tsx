@@ -76,6 +76,16 @@ const readStoredSession = (): { session: Session | null; token: string | null } 
 
 const DemoAuthContext = createContext<DemoAuthContextType | null>(null);
 
+const authFetch = async (path: string, options: RequestInit): Promise<Response> => {
+  try {
+    const res = await fetch(`/api/auth${path}`, options);
+    if (res.status !== 404) return res;
+  } catch {
+    // Fallback to direct FastAPI connection
+  }
+  return fetch(`http://127.0.0.1:8000/api/auth${path}`, options);
+};
+
 export const DemoAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const initial = readStoredSession();
   const [session, setSession] = useState<Session | null>(initial.session);
@@ -85,7 +95,7 @@ export const DemoAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Auto-verify token on mount if present
   useEffect(() => {
     if (token) {
-      fetch('/api/auth/me', {
+      authFetch('/me', {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -125,7 +135,7 @@ export const DemoAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
       }
 
-      const res = await fetch('/api/auth/login', {
+      const res = await authFetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password: pwd }),
@@ -168,7 +178,7 @@ export const DemoAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await authFetch('/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
